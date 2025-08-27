@@ -160,7 +160,8 @@ public class MemberValidator {
             throw new BusinessException(ErrorCode.MISSING_SHORT_DESCRIPTION); // 633
         }
 
-        if (shopRepository.existsByPhone(dto.getShopPhoneNumber())) {
+        // 가게 번호가 null이 아니면 중복 검사
+        if (dto.getShopPhoneNumber() != null && shopRepository.existsByPhone(dto.getShopPhoneNumber())) {
             throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE); // 702
         }
 

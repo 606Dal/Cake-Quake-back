@@ -96,6 +96,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         return exclude;
     }
 
+    /*
+        react-cookie 사용했을 때의 코드
+     */
 //    @Override
 //    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 //
@@ -166,8 +169,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 //        }
 //    }
     /*
-        25.07.02 리액트 쿠키에서 HTTPOnly 쿠키로 변경.
-     */
+        25.07.02 react-cookie 에서 HTTPOnly 쿠키로 변경.
+    */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 

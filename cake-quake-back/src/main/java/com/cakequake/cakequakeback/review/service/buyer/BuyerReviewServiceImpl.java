@@ -39,9 +39,10 @@ import java.util.UUID;
 @Log4j2
 public class BuyerReviewServiceImpl implements BuyerReviewService {
 
-    private final AmazonS3 amazonS3;
-    private final String bucketName = "elasticbeanstalk-ap-northeast-2-853972008946";
-    private final String UPLOAD_DIR = "images/reviewImages/";
+    private static final String UPLOAD_DIR = "C:/nginx-1.26.3/html/reviewuploads";
+//    private final AmazonS3 amazonS3;
+//    private final String bucketName = "elasticbeanstalk-ap-northeast-2-853972008946";
+//    private final String UPLOAD_DIR = "images/reviewImages/";
 
     private final BuyerReviewRepo buyerReviewRepo;
     private final BuyerOrderRepository buyerOrderRepo;
@@ -69,6 +70,17 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
 
         // 이미지 파일 저장
         MultipartFile file = dto.getReviewPictureUrl();
+        String savedName = null;
+        if (file != null && !file.isEmpty()) {
+            savedName = imageUtils.saveImageFile(file, UPLOAD_DIR);
+        }
+
+        String pictureUrl = (savedName != null)
+                ? "/reviewuploads/" + savedName
+                : null;
+
+    /*
+            배포용
         String pictureUrl = null;
         if (file != null && !file.isEmpty()) {
             try {
@@ -85,6 +97,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
                 throw new BusinessException(ErrorCode.IMAGE_GENERATION_FAILED);
             }
         }
+     */
 
         // Review 엔티티 생성
         Review review = Review.builder()
@@ -169,6 +182,12 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
         // 3) 새 파일이 업로드 되었으면 저장하고 URL 갱신
         MultipartFile file = dto.getReviewPictureUrl();
         if (file != null && !file.isEmpty()) {
+            String savedName = imageUtils.saveImageFile(file, UPLOAD_DIR);
+            review.updateReviewPictureUrl("/reviewuploads/" + savedName);
+        }
+    /*
+        배포용
+        if (file != null && !file.isEmpty()) {
             try {
                 String savedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
                 String key = UPLOAD_DIR + savedName;
@@ -184,6 +203,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
                 throw new BusinessException(ErrorCode.IMAGE_GENERATION_FAILED);
             }
         }
+     */
 
         //수정 가능한 필드만 수정하기
         review.updateRating(dto.getRating());

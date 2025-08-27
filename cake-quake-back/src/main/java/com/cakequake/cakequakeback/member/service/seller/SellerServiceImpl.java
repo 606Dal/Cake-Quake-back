@@ -37,7 +37,7 @@ public class SellerServiceImpl implements SellerService{
     private final CustomImageUtils customImageUtils;
 
     private final AuthenticatedUserService authenticatedUserService;
-    private final FileStorageService fileStorageService;
+//    private final FileStorageService fileStorageService;
 
     public SellerServiceImpl(PendingSellerRequestRepository pendingSellerRequestRepository, PasswordEncoder passwordEncoder, MemberValidator memberValidator, CustomImageUtils customImageUtils, MemberRepository memberRepository, ShopRepository shopRepository, AuthenticatedUserService authenticatedUserService, FileStorageService fileStorageService) {
         this.pendingSellerRequestRepository = pendingSellerRequestRepository;
@@ -47,7 +47,7 @@ public class SellerServiceImpl implements SellerService{
         this.memberRepository = memberRepository;
         this.shopRepository = shopRepository;
         this.authenticatedUserService = authenticatedUserService;
-        this.fileStorageService = fileStorageService;
+//        this.fileStorageService = fileStorageService;
     }
 
     @Override
@@ -75,8 +75,12 @@ public class SellerServiceImpl implements SellerService{
 
         /*
             파일 처리 - 사업자 등록증 파일
-         */
-        String savedName = fileStorageService.storeFile(file, "images/sellerCertificates/");
+        */
+
+        String uploadDir = "C:\\nginx-1.26.3\\html\\selleruploads";
+
+        String savedName = customImageUtils.saveImageFile(file, uploadDir);
+//        String savedName = fileStorageService.storeFile(file, "images/sellerCertificates/");
 
         PendingSellerRequest pendingSeller = PendingSellerRequest.builder()
                 .userId(requestDTO.getUserId())
@@ -104,8 +108,8 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ApiResponseDTO registerStepTwo(SellerSignupStep2RequestDTO dto) {
-
 //        log.debug("SellerSignupStep2RequestDTO: {}", dto.toString());
+
         // 가입 2단계 DTO 형식 검사 + 매장 번호 중복 검사
         memberValidator.validateSellerSignup2(dto);
         log.debug("---registerStepTwo---memberValidator 통과---");
@@ -118,6 +122,18 @@ public class SellerServiceImpl implements SellerService{
         String shopImageName = null; // 대표 이미지
         String sanitationImageName = null; // 위생 인증서
 
+        // 이미지 저장 경로
+        String shopImageDir = "C:\\nginx-1.26.3\\html\\shop\\Images";
+        String sanitationImageDir = "C:\\nginx-1.26.3\\html\\selleruploads";
+
+        if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
+            shopImageName = customImageUtils.saveImageFile(dto.getShopImage(), shopImageDir);
+        }
+
+        if (dto.getSanitationCertificate() != null && !dto.getSanitationCertificate().isEmpty()) {
+            sanitationImageName = customImageUtils.saveImageFile(dto.getSanitationCertificate(), sanitationImageDir);
+        }
+    /* aws 배포용
         if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
             shopImageName = fileStorageService.storeFile(dto.getShopImage(), "images/shopImages/");
         }
@@ -125,7 +141,7 @@ public class SellerServiceImpl implements SellerService{
         if (dto.getSanitationCertificate() != null && !dto.getSanitationCertificate().isEmpty()) {
             sanitationImageName = fileStorageService.storeFile(dto.getSanitationCertificate(), "images/sellerCertificates/");
         }
-
+    */
         log.debug("shopImageName: {}, sanitationImageName: {}", shopImageName, sanitationImageName);
 
         // 판매자 정보 업데이트

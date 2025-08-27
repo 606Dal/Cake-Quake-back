@@ -1,5 +1,5 @@
-server:
-  port: 5000
+#server:
+#  port: 5000
 
 procurement:
   cutoff-hour: 11    # 컷오프 시각 (시(hour) 단위)
