@@ -32,7 +32,9 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew clean bootJar
+        run: |
+          cd cake-quake-back        # gradlew 있는 폴더로 이동
+          ./gradlew clean bootJar
 
       - name: Copy jar to OCI
         uses: appleboy/scp-action@v0.1.7
