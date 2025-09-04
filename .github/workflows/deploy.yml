@@ -34,7 +34,8 @@ jobs:
       - name: Build with Gradle
         run: |
           cd cake-quake-back        # gradlew 있는 폴더로 이동
-          ./gradlew clean bootJar
+          chmod +x gradlew             # gradlew 실행 권한 부여
+          ./gradlew clean bootJar      # 빌드 실행
 
       - name: Copy jar to OCI
         uses: appleboy/scp-action@v0.1.7
@@ -52,6 +53,8 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
+            # ==== 배포 폴더 권한 설정 ====
+            sudo chown -R opc:opc /home/opc/app/CakeQuake
             # ==== Export all secrets as environment variables ====
             export DB_PORT="${{ secrets.DB_PORT }}"
             export DB_USER="${{ secrets.DB_USER }}"
