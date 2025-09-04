@@ -83,5 +83,6 @@ jobs:
             # ==== Deploy commit SHA ====
             echo "Deploying commit ${GITHUB_SHA::7} at $(date)" >> /home/opc/app/app.log
             # ==== Run the new jar ====
-            nohup java -jar -Dspring.profiles.active=prod /home/opc/app/CakeQuake/*.jar > /home/opc/app/app.log 2>&1 &
+            cd /home/opc/app/CakeQuake/cake-quake-back/build/libs
+            nohup java -jar *.jar -Dspring.profiles.active=prod > /home/opc/app/app.log 2>&1 &
 
