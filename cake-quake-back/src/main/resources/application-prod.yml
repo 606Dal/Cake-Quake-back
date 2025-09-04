@@ -1,0 +1,8 @@
+server:
+  port: 5000
+
+logging:
+  level:
+    root: INFO
+  file:
+    encoding: UTF-8

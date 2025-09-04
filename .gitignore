@@ -8,7 +8,6 @@ build/
 # DB 설정 파일 무시
 external-db.yml
 
-application-prod.yml
 
 ### STS ###
 .apt_generated
