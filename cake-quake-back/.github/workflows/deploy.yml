@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # 원할 때 수동 배포 가능
   push:
     branches:
-      - main   # main 브랜치에 push 될 때 배포
+      - develop   # develop 브랜치에 push 될 때 배포
 
 jobs:
   build-and-deploy:
