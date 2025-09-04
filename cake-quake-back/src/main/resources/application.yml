@@ -79,13 +79,13 @@ procurement:
 
 spring:
   profiles:
-    active: prod
+    active: local
 
 ---
 
 spring:
   profiles:
-    active: local
+    active: prod
 
 
 
