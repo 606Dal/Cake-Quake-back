@@ -43,7 +43,7 @@ jobs:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          source: "build/libs/*.jar"
+          source: "cake-quake-back/build/libs/*.jar"
           target: "/home/opc/app/CakeQuake"
 
       - name: Restart app on OCI
