@@ -2,12 +2,14 @@ package com.cakequake.cakequakeback.config;
 
 import com.cakequake.cakequakeback.payment.sercurity.EncryptionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class KeyEncryptorRunner implements CommandLineRunner {
 
     private final EncryptionService encryptionService;
@@ -19,11 +21,15 @@ public class KeyEncryptorRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("=== 암호화된 샌드박스 키 ===");
-        System.out.println("Encrypted Kakao AdminKey : " + encryptionService.encrypt(kakaoAdminKey));
-        System.out.println("Encrypted Kakao CID      : " + encryptionService.encrypt(kakaoCid));
-        System.out.println("Encrypted Toss SecretKey : " + encryptionService.encrypt(tossSecretKey));
-        System.out.println("=== 끝 ===");
-
+//        System.out.println("=== 암호화된 샌드박스 키 ===");
+//        System.out.println("Encrypted Kakao AdminKey : " + encryptionService.encrypt(kakaoAdminKey));
+//        System.out.println("Encrypted Kakao CID      : " + encryptionService.encrypt(kakaoCid));
+//        System.out.println("Encrypted Toss SecretKey : " + encryptionService.encrypt(tossSecretKey));
+//        System.out.println("=== 끝 ===");
+        log.debug("=== 암호화된 샌드박스 키 ===");
+        log.debug("Encrypted Kakao AdminKey : {}", encryptionService.encrypt(kakaoAdminKey));
+        log.debug("Encrypted Kakao CID      : {}", encryptionService.encrypt(kakaoCid));
+        log.debug("Encrypted Toss SecretKey : {}", encryptionService.encrypt(tossSecretKey));
+        log.debug("=== 끝 ===");
     }
 }

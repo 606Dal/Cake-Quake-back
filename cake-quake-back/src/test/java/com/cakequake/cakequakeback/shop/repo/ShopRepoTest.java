@@ -184,7 +184,7 @@ public class ShopRepoTest {
             Optional<Shop> optionalShop = shopRepository.findById(shopId);
 
             if (optionalShop.isEmpty()) {
-                System.out.println("❌ Shop with ID " + shopId + " not found.");
+                log.warn("❌ Shop with ID {} not found.", shopId);
                 continue;
             }
 
@@ -201,10 +201,10 @@ public class ShopRepoTest {
                 totalSaved++;
             }
 
-            System.out.println("✅ Shop ID " + shopId + "에 공지사항 2개 저장 완료.");
+            log.info("✅ Shop ID {}에 공지사항 2개 저장 완료.", shopId);
         }
 
-        System.out.println("🎉 총 " + totalSaved + "개의 공지사항이 저장되었습니다.");
+        log.info("🎉 총 {}개의 공지사항이 저장되었습니다.", totalSaved);
     }
 
     @Commit
@@ -270,7 +270,7 @@ public class ShopRepoTest {
         imageRepository.save(image1);
         imageRepository.save(image2);
 
-        System.out.println("✅ 케이크 이미지 더미 데이터 저장 완료!");
+        log.info("✅ 케이크 이미지 더미 데이터 저장 완료!");
     }
 
 
@@ -331,7 +331,7 @@ public class ShopRepoTest {
         assertTrue(shopPage.getContent().size() >= 0); // 데이터 없어도 통과하게
 
         shopPage.getContent().forEach(dto -> {
-            System.out.println("🔍 ShopPreviewDTO: " + dto);
+            log.info("🔍 ShopPreviewDTO: {}", dto);
             assertNotNull(dto.getShopId());
             assertNotNull(dto.getShopName());
             assertNotNull(dto.getAddress());
@@ -361,7 +361,7 @@ public class ShopRepoTest {
         }
 
         // 콘솔 출력 (확인용)
-        notices.forEach(n -> System.out.println(n.getTitle() + " | " + n.getRegDate()));
+        notices.forEach(n -> log.debug("{} | {}", n.getTitle(), n.getRegDate()));
     }
 
     //공지사항 목록 조회
@@ -378,11 +378,11 @@ public class ShopRepoTest {
 
         // 결과 출력
         result.getContent().forEach(dto -> {
-            System.out.println("공지 ID: " + dto.getShopNoticeId());
-            System.out.println("제목: " + dto.getTitle());
-            System.out.println("내용: " + dto.getContent());
-            System.out.println("등록일: " + dto.getRegDate());
-            System.out.println("---");
+            log.debug("공지 ID: {}", dto.getShopNoticeId());
+            log.debug("제목: {}", dto.getTitle());
+            log.debug("내용: {}", dto.getContent());
+            log.debug("등록일: {}", dto.getRegDate());
+            log.debug("---");
         });
     }
 
@@ -404,11 +404,11 @@ public class ShopRepoTest {
         assertThat(result).isPresent();
         ShopNoticeDetailDTO dto = result.get();
 
-        System.out.println("조회된 공지 ID: " + dto.getShopNoticeId());
-        System.out.println("가게 ID: " + dto.getShopId());
-        System.out.println("제목: " + dto.getTitle());
-        System.out.println("내용: " + dto.getContent());
-        System.out.println("등록일: " + dto.getRegDate());
+        log.debug("조회된 공지 ID: {}", dto.getShopNoticeId());
+        log.debug("가게 ID: {}", dto.getShopId());
+        log.debug("제목: {}", dto.getTitle());
+        log.debug("내용: {}", dto.getContent());
+        log.debug("등록일: {}", dto.getRegDate());
     }
 
 

@@ -3,6 +3,7 @@ package com.cakequake.cakequakeback.notification.controller;
 import com.cakequake.cakequakeback.notification.dto.NotificationDTO;
 import com.cakequake.cakequakeback.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notifications")
+@Slf4j
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -43,7 +45,7 @@ public class NotificationController {
             // 권한이 없거나 알림이 존재하지 않는 경우
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden
         } catch (Exception e) {
-            System.err.println("알림 삭제 실패: " + e.getMessage());
+            log.error("알림 삭제 실패: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
     }

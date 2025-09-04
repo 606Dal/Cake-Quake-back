@@ -36,6 +36,7 @@ import com.cakequake.cakequakeback.shop.repo.ShopRepository;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class BuyerOrderServiceImpl implements BuyerOrderService {
     private final BuyerOrderRepository buyerOrderRepository;
     private final CakeOrderItemRepository cakeOrderItemRepository;
@@ -246,7 +248,7 @@ public class BuyerOrderServiceImpl implements BuyerOrderService {
                     NotificationType.NEW_ORDER
             );
         } catch (Exception e) {
-            System.err.println("새 주문 알림 전송 실패: " + e.getMessage());
+            log.error("새 주문 알림 전송 실패: {}", e);
         }
 
         // CakeOrderItem 및 CakeOrderItemOption 저장
@@ -505,13 +507,12 @@ public class BuyerOrderServiceImpl implements BuyerOrderService {
                         order.getOrderId(),
                         NotificationType.ORDER_CANCELLED_BY_BUYER
                 );
-                System.out.println("DEBUG: 구매자 주문 취소로 판매자에게 알림 전송 완료: 주문 ID " + order.getOrderId() + ", 판매자 UID: " + sellerUid);
+                log.debug("구매자 주문 취소로 판매자에게 알림 전송 완료: 주문 ID {}, 판매자 UID {}", order.getOrderId(), sellerUid);
             } else {
-                System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 가게 또는 판매자 정보가 NULL입니다. 구매자 취소 알림을 보낼 수 없습니다.");
+                log.warn("주문 ID {}에 연결된 가게 또는 판매자 정보가 NULL입니다. 구매자 취소 알림을 보낼 수 없습니다.", order.getOrderId());
             }
         } catch (Exception e) {
-            System.err.println("DEBUG: 구매자 주문 취소 알림 전송 실패: 주문 ID " + order.getOrderId() + ", 에러: " + e.getMessage());
-            e.printStackTrace();
+            log.error("구매자 주문 취소 알림 전송 실패: 주문 ID {}, 에러: {}", order.getOrderId(), e);
         }
 
         // ⭐⭐⭐ 포인트 반환 로직 추가 ⭐⭐⭐
@@ -525,7 +526,7 @@ public class BuyerOrderServiceImpl implements BuyerOrderService {
         // 주문 취소 시 뱃지 조건 재검사 (선택 사항, 필요하다면 활성화)
          if (member != null) {
              badgeService.checkAndAcquireBadges(member.getUid());
-             System.out.println("DEBUG: 주문 취소로 인해 회원 UID " + member.getUid() + "의 뱃지 조건 재검사 완료.");
+             log.debug("주문 취소로 인해 회원 UID {}의 뱃지 조건 재검사 완료.", member.getUid());
         }
     }
 

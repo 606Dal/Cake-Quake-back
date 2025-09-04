@@ -2,6 +2,7 @@ package com.cakequake.cakequakeback.shop;
 
 import com.cakequake.cakequakeback.common.exception.BusinessException;
 import com.cakequake.cakequakeback.common.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
+@Slf4j
 public class CustomImagesUtils {
     // 단일 이미지 저장 + 썸네일 생성
     public String saveImageFile(MultipartFile file, String uploadDir) {
@@ -107,14 +109,14 @@ public class CustomImagesUtils {
             if (!fileToDelete.delete()) {
                 // 삭제 실패 시 로깅 또는 예외 처리
                 // throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "원본 파일 삭제 실패: " + fileName);
-                System.err.println("원본 파일 삭제 실패: " + fileName);
+                log.error("원본 파일 삭제 실패: {}", fileName);
             }
         }
         if (thumbnailToDelete.exists()) {
             if (!thumbnailToDelete.delete()) {
                 // 삭제 실패 시 로깅 또는 예외 처리
                 // throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "썸네일 파일 삭제 실패: " + "s_" + fileName);
-                System.err.println("썸네일 파일 삭제 실패: " + "s_" + fileName);
+                log.error("썸네일 파일 삭제 실패: {}", "s_" + fileName);
             }
         }
     }

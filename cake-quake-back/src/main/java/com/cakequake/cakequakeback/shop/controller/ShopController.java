@@ -9,6 +9,7 @@ import com.cakequake.cakequakeback.shop.dto.*;
 import com.cakequake.cakequakeback.shop.entities.ShopStatus;
 import com.cakequake.cakequakeback.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/shops")
 @RequiredArgsConstructor
-
+@Log4j2
 public class ShopController {
     private final ShopService shopService;
     private final CakeItemService cakeItemService;
@@ -93,13 +94,15 @@ public class ShopController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files
 
     ) {
-        System.out.println("컨트롤러 updateShop 호출됨. shopId: " + shopId);
-        System.out.println("DTO: " + dto); // dto 객체의 toString()이 호출됩니다.
+        log.debug("컨트롤러 updateShop 호출됨. shopId: {}", shopId);
+        log.debug("DTO: {}", dto); // dto 객체의 toString()이 호출됩니다.
         if (files != null && !files.isEmpty()) { // files가 null이 아니고 비어있지 않은지 확인
-            System.out.println("Files 수: " + files.size());
-            files.forEach(file -> System.out.println("파일: " + file.getOriginalFilename() + ", 타입: " + file.getContentType()));
+            log.debug("Files 수: {}", files.size());
+            files.forEach(file ->
+                    log.debug("파일: {}, 타입: {}", file.getOriginalFilename(), file.getContentType())
+            );
         } else {
-            System.out.println("Files 없음.");
+            log.debug("Files 없음.");
         }
 
         // 서비스 계층 호출

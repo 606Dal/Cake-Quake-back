@@ -106,7 +106,8 @@ public class CustomSecurityConfig {
 //                "https://cakequake.click",
 //                "http://cakequake.click",
                 "http://localhost:5173",
-                "http://localhost:5174"
+                "http://localhost:5174",
+                "https://cake-quake.vercel.app"
 //                "https://*.ngrok-free.app",
 //                "http://localhost:80"
                 )

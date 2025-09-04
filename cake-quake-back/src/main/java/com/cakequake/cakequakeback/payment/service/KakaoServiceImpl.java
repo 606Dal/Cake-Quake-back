@@ -14,6 +14,7 @@ import com.cakequake.cakequakeback.payment.repo.MerchantPaymentRepo;
 import com.cakequake.cakequakeback.payment.repo.PaymentRepo;
 import com.cakequake.cakequakeback.payment.sercurity.EncryptionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,7 @@ import static com.cakequake.cakequakeback.payment.entities.QPayment.payment;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class KakaoServiceImpl implements KakaoPayService {
 
     //RestTemplate를 이용해 카카오페이 REST API를 호출
@@ -69,11 +71,11 @@ public class KakaoServiceImpl implements KakaoPayService {
         String adminKey = encryptionService.decrypt(key.getEncryptedSecret());
 
 
-        System.out.println(">>> [DEBUG] 복호화된 AdminKey = " + adminKey);
-        System.out.println(">>> [DEBUG] 복호화된 CID      = " + cid);
+        log.debug("복호화된 AdminKey = {}", adminKey);
+        log.debug("복호화된 CID = {}", cid);
 
         // 2) kakaoBaseUrl이 실제로 주입되었는지 로그로 확인
-        System.out.println(">>> [DEBUG] kakaoBaseUrl = " + baseUrl);
+        log.debug("kakaoBaseUrl = {}", baseUrl);
         // (콘솔에 ">>> [DEBUG] kakaoBaseUrl = https://kapi.kakao.com" 와 같이 찍혀야 합니다.)
 
         //HTTP 헤더 세팅
@@ -82,7 +84,7 @@ public class KakaoServiceImpl implements KakaoPayService {
         headers.set("Authorization", "KakaoAK " + adminKey);
 
         // ◀ 여기가 실제로 어떤 Header가 달려 있는지 찍어보기
-        System.out.println(">>> [OUTGOING] Authorization 헤더 = '" + headers.getFirst("Authorization") + "'");
+        log.debug("[OUTGOING] Authorization 헤더 = '{}'", headers.getFirst("Authorization"));
 
 
 
@@ -116,7 +118,7 @@ public class KakaoServiceImpl implements KakaoPayService {
                 requestEntity,
                 KakaoPayReadyResponseDTO.class
         );
-        System.out.println(">>> [DEBUG] kakao ready response = " + response);
+        log.debug("kakao ready response = {}", response);
 
         if (response == null || response.getTid() == null) {
             throw new IllegalStateException("카카오페이 결제 준비 요청에 실패했습니다.");
@@ -177,19 +179,19 @@ public class KakaoServiceImpl implements KakaoPayService {
             );
 
             // ★ 정상 리턴된 경우에도 response.status를 찍어 봅니다.
-            System.out.println(">>> [DEBUG] KakaoPay cancel 정상 응답, response.status=" +
+            log.debug("KakaoPay cancel 정상 응답, response.status={}",
                     (response != null ? response.getStatus() : "NULL"));
         }
         catch (HttpClientErrorException e) {
             String body = e.getResponseBodyAsString();
-            System.out.println(">>> [DEBUG] cancel 오류 body: " + body);
+            log.error("cancel 오류 body: {}", body);
 
             // 6) “이미 전액 취소됨” 오류 처리 (code=-710)
             if (body != null && body.contains("\"code\":-710")) {
                 // 이미 취소된 상태이므로, 우린 성공 처리를 해준다.
                 KakaoPayCancelResponseDTO fake = new KakaoPayCancelResponseDTO();
                 fake.setStatus("CANCELLED");
-                System.out.println(">>> [DEBUG] code=-710 감지, 인위적으로 status=CANCEL 세팅");
+                log.debug("code=-710 감지, 인위적으로 status=CANCEL 세팅");
                 return fake;
             }
 
@@ -213,7 +215,7 @@ public class KakaoServiceImpl implements KakaoPayService {
         if (!( "CANCEL".equalsIgnoreCase(status)
                 || "CANCEL_PAYMENT".equalsIgnoreCase(status)
                 || "CANCELED".equalsIgnoreCase(status) )) {
-            System.out.println(">>> [DEBUG] response.getStatus() 가 취소 성공 상태가 아닙니다. 실제 status=" + status);
+            log.warn("response.getStatus() 가 취소 성공 상태가 아닙니다. 실제 status={}", status);
             throw new IllegalStateException(
                     "카카오페이 결제 취소 요청이 실패했습니다. (status=" + status + ")");
         }

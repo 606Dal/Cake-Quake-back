@@ -17,8 +17,8 @@ public class JasyptTestRunner implements CommandLineRunner {
         String encrypted = encryptionService.encrypt(original);
         String decrypted = encryptionService.decrypt(encrypted);
 
-        log.info("원본:     " + original);
-        log.info("암호화된: " + encrypted);
-        log.info("복호화된: " + decrypted);
+        log.debug("원본:     {}", original);
+        log.debug("암호화된: {}", encrypted);
+        log.debug("복호화된: {}", decrypted);
     }
 }

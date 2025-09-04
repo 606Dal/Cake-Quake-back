@@ -1,0 +1,82 @@
+name: Deploy CakeQuake to OCI
+
+on:
+  workflow_dispatch:  # 원할 때 수동 배포 가능
+  push:
+    branches:
+      - main   # main 브랜치에 push 될 때 배포
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Set up Gradle cache
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar
+
+      - name: Copy jar to OCI
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "/home/opc/app/CakeQuake"
+
+      - name: Restart app on OCI
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          script: |
+            # ==== Export all secrets as environment variables ====
+            export DB_PORT="${{ secrets.DB_PORT }}"
+            export DB_USER="${{ secrets.DB_USER }}"
+            export DB_PASS="${{ secrets.DB_PASS }}"
+            export DB_NAME="${{ secrets.DB_NAME }}"
+            export DB_URL="${{ secrets.DB_URL }}"
+            export EXTERNAL_BIZ_API_SERVICE_KEY="${{ secrets.EXTERNAL_BIZ_API_SERVICE_KEY }}"
+            export JASYPT_ENCRYPTOR_PASSWORD="${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}"
+            export KAKAO_ADMIN_KEY="${{ secrets.KAKAO_ADMIN_KEY }}"
+            export KAKAO_CID="${{ secrets.KAKAO_CID }}"
+            export KAKAO_MAP_REST_API_KEY="${{ secrets.KAKAO_MAP_REST_API_KEY }}"
+            export KAKAO_API_USER_INFO_URL="${{ secrets.KAKAO_API_USER_INFO_URL }}"
+            export TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}"
+            export APP_BASE_URL="${{ secrets.APP_BASE_URL }}"
+            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+            export OPENAI_MODEL="${{ secrets.OPENAI_MODEL }}"
+            # ==== 기존 5000 포트 프로세스 종료 ====
+            PID=$(lsof -t -i:5000)
+            if [ -n "$PID" ]; then
+            echo "Killing process on port 5000: $PID"
+            kill -9 $PID
+            else
+            echo "No process running on port 5000"
+            fi
+            # ==== Deploy commit SHA ====
+            echo "Deploying commit ${GITHUB_SHA::7} at $(date)" >> /home/opc/app/app.log
+            # ==== Run the new jar ====
+            nohup java -jar -Dspring.profiles.active=prod /home/opc/app/CakeQuake/*.jar > /home/opc/app/app.log 2>&1 &
+

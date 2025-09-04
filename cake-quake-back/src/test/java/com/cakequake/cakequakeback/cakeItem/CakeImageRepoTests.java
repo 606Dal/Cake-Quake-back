@@ -50,7 +50,7 @@ class CakeImageRepositoryTest {
         cakeImageRepository.save(image1);
         cakeImageRepository.save(image2);
 
-        System.out.println("✅ 케이크 이미지 더미 데이터 저장 완료!");
+        log.debug("✅ 케이크 이미지 더미 데이터 저장 완료!");
     }
 }
 

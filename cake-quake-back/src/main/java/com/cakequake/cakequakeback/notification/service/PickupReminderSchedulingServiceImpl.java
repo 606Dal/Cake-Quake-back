@@ -5,6 +5,7 @@ import com.cakequake.cakequakeback.notification.repo.PickupNotificationRepositor
 import com.cakequake.cakequakeback.order.entities.CakeOrder;
 import com.cakequake.cakequakeback.notification.entities.NotificationType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PickupReminderSchedulingServiceImpl implements PickupReminderSchedulingService {
 
     private final PickupNotificationRepository pickupNotificationRepository;
@@ -31,7 +33,7 @@ public class PickupReminderSchedulingServiceImpl implements PickupReminderSchedu
         // 현재 시간보다 알림 시간이 과거라면 스케줄링하지 않음 (이미 지나간 시간)
         if (notificationDateTime.isBefore(LocalDateTime.now())) {
             // 이미 알림 시간이 지났다면, 스케줄링하지 않고 로그만 남깁니다.
-            System.err.println("알림 스케줄링 실패: 주문 ID " + order.getOrderId() + "의 알림 시간이 이미 지났습니다. 예정 시간: " + notificationDateTime);
+            log.error("알림 스케줄링 실패: 주문 ID {}의 알림 시간이 이미 지났습니다. 예정 시간: {}", order.getOrderId(), notificationDateTime);
             return;
         }
 
@@ -72,8 +74,7 @@ public class PickupReminderSchedulingServiceImpl implements PickupReminderSchedu
                 notification.markAsSent(); // 발송 완료 상태로 변경
                 pickupNotificationRepository.save(notification); // DB 업데이트
             } catch (Exception e) {
-                System.err.println("[Scheduler] 픽업 알림 발송 실패: 주문 ID " + notification.getOrder().getOrderId() +
-                        ", 에러: " + e.getMessage());
+                log.error("[Scheduler] 픽업 알림 발송 실패: 주문 ID {}", notification.getOrder().getOrderId(), e);
             }
         }
     }

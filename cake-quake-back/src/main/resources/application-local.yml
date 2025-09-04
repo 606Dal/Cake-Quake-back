@@ -1,0 +1,11 @@
+#개발용 로그 레벨. 운영 시 변경 필요
+logging:
+  level:
+    com.cakequake: INFO
+    com.cakequake.cakequakeback.common: DEBUG
+    com.cakequake.cakequakeback.member: DEBUG
+    com.cakequake.cakequakeback.security: DEBUG
+    com.cakequake.cakequakeback.chatting : DEBUG
+    org.springframework.security: TRACE
+  file:
+    encoding: UTF-8

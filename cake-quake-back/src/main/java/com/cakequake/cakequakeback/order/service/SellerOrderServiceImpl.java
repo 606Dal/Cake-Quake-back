@@ -30,6 +30,7 @@ import com.cakequake.cakequakeback.temperature.repo.TemperatureRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SellerOrderServiceImpl implements SellerOrderService {
 
     private final SellerOrderRepository sellerOrderRepository;
@@ -215,8 +217,8 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                 .findByOrderIdAndShopId(orderId, shopId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ORDER_ID));
 
-        System.out.println("DEBUG: Current Order Status (Before Change): " + order.getStatus()); // 디버그 로그
-        System.out.println("DEBUG: Attempting to change to Status: " + statusStr); // 디버그 로그
+        log.debug("Current Order Status (Before Change): {}", order.getStatus()); // 디버그 로그
+        log.debug("Attempting to change to Status: {}", statusStr); // 디버그 로그
 
         // 2) 문자열 → Enum 변환
         OrderStatus newStatus;
@@ -261,7 +263,7 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                 valid = false;
         }
         if (!valid) {
-            System.out.println("DEBUG: Invalid Status Transition from " + order.getStatus() + " to " + newStatus); // 디버그 로그
+            log.debug("Invalid Status Transition from {} to {}", order.getStatus(), newStatus); // 디버그 로그
             throw new BusinessException(ErrorCode.ORDER_MISMATCH,
                     String.format("현재 주문 상태 (%s) 에서 %s(으)로 변경할 수 없습니다.", order.getStatus(), newStatus));
         }
@@ -277,7 +279,7 @@ public class SellerOrderServiceImpl implements SellerOrderService {
         if (newStatus == OrderStatus.RESERVATION_CONFIRMED) {
             try {
                 pickupReminderSchedulingService.schedulePickupReminder(order); // DB에 저장
-                System.out.println("DEBUG: RESERVATION_CONFIRMED 상태로 변경되어 픽업 알림 DB 스케줄링 완료: 주문 ID " + order.getOrderId());
+                log.debug("RESERVATION_CONFIRMED 상태로 변경되어 픽업 알림 DB 스케줄링 완료: 주문 ID {}", order.getOrderId());
 
                 if (order.getMember() != null) {
                     // 픽업 날짜와 시간을 포함한 메시지 생성
@@ -292,13 +294,12 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                             NotificationType.RESERVATION_CONFIRMATION
                     );
 
-                    System.out.println("DEBUG: RESERVATION_CONFIRMED 상태로 변경되어 구매자에게 즉시 알림 전송 완료: 주문 ID " + order.getOrderId());
+                    log.debug("RESERVATION_CONFIRMED 상태로 변경되어 구매자에게 즉시 알림 전송 완료: 주문 ID {}", order.getOrderId());
                 } else {
-                    System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 멤버(구매자) 정보가 NULL입니다. 알림을 보낼 수 없습니다.");
+                    log.warn("주문 ID {}에 연결된 멤버(구매자) 정보가 NULL입니다. 알림을 보낼 수 없습니다.", order.getOrderId());
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: 주문 확정 후 픽업 알림 DB 스케줄링 실패: 주문 ID " + order.getOrderId() + ", 에러: " + e.getMessage());
-                e.printStackTrace();
+                log.error("주문 확정 후 픽업 알림 DB 스케줄링 실패: 주문 ID {}, 에러: {}", order.getOrderId(), e);
             }
         }
 
@@ -313,13 +314,13 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                             order.getOrderId(),
                             NotificationType.CANCELLED_ORDER
                     );
-                    System.out.println("DEBUG: 주문이 취소되어 구매자에게 알림 전송 완료: 주문 ID " + order.getOrderId());
+                    log.debug("주문이 취소되어 구매자에게 알림 전송 완료: 주문 ID {}", order.getOrderId());
                 } else {
-                    System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 멤버(구매자) 정보가 NULL입니다. 취소 알림을 보낼 수 없습니다.");
+                    log.warn("주문 ID {}에 연결된 멤버(구매자) 정보가 NULL입니다. 취소 알림을 보낼 수 없습니다.", order.getOrderId());
+
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: 주문 취소 후 알림 전송 실패: 주문 ID " + order.getOrderId() + ", 에러: " + e.getMessage());
-                e.printStackTrace();
+                log.error("주문 취소 후 알림 전송 실패: 주문 ID {}, 에러: {}", order.getOrderId(), e);
             }
         }
 
@@ -336,14 +337,13 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                             order.getOrderId(),
                             NotificationType.READY_FOR_PICKUP // 새로 추가된 알림 타입
                     );
-                    System.out.println("DEBUG: READY_FOR_PICKUP 상태로 변경되어 구매자에게 픽업 준비 완료 알림 전송 완료: 주문 ID " + order.getOrderId());
+                    log.debug("READY_FOR_PICKUP 상태로 변경되어 구매자에게 픽업 준비 완료 알림 전송 완료: 주문 ID {}", order.getOrderId());
 
                 } else {
-                    System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 멤버(구매자) 정보가 NULL입니다. 픽업 준비 완료 알림을 보낼 수 없습니다.");
+                    log.warn("주문 ID {}에 연결된 멤버(구매자) 정보가 NULL입니다. 픽업 준비 완료 알림을 보낼 수 없습니다.", order.getOrderId());
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: 픽업 준비 완료 알림 전송 실패: 주문 ID " + order.getOrderId() + ", 에러: " + e.getMessage());
-                e.printStackTrace();
+                log.error("픽업 준비 완료 알림 전송 실패: 주문 ID {}, 에러: {}", order.getOrderId(), e);
             }
         }
 
@@ -362,13 +362,12 @@ public class SellerOrderServiceImpl implements SellerOrderService {
                             order.getOrderId(),
                             NotificationType.NO_SHOW_CONFIRMATION
                     );
-                    System.out.println("DEBUG: NO_SHOW 상태로 변경되어 구매자에게 노쇼 처리 알림 전송 완료: 주문 ID " + order.getOrderId());
+                    log.debug("NO_SHOW 상태로 변경되어 구매자에게 노쇼 처리 알림 전송 완료: 주문 ID {}", order.getOrderId());
                 } else {
-                    System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 멤버(구매자) 정보가 NULL입니다. 노쇼 처리 알림을 보낼 수 없습니다.");
+                    log.warn("주문 ID {}에 연결된 멤버(구매자) 정보가 NULL입니다. 노쇼 처리 알림을 보낼 수 없습니다.", order.getOrderId());
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: 노쇼 처리 알림 전송 실패: 주문 ID " + order.getOrderId() + ", 에러: " + e.getMessage());
-                e.printStackTrace();
+                log.error("노쇼 처리 알림 전송 실패: 주문 ID {}, 에러: {}", order.getOrderId(), e);
             }
         }
 
@@ -399,12 +398,12 @@ public class SellerOrderServiceImpl implements SellerOrderService {
         // 뱃지 부여
         if (order.getMember() != null) {
             badgeService.checkAndAcquireBadges(order.getMember().getUid());
-            System.out.println("DEBUG: 주문 상태 변경(" + newStatus + ") 후 회원 UID " + order.getMember().getUid() + "의 모든 뱃지 조건 검사 및 부여/갱신 완료.");
+            log.debug("주문 상태 변경({}) 후 회원 UID {}의 모든 뱃지 조건 검사 및 부여/갱신 완료.", newStatus, order.getMember().getUid());
         } else {
-            System.err.println("DEBUG: 주문 ID " + order.getOrderId() + "에 연결된 멤버(구매자) 정보가 NULL입니다. 뱃지를 확인할 수 없습니다.");
+            log.warn("주문 ID {}에 연결된 멤버(구매자) 정보가 NULL입니다. 뱃지를 확인할 수 없습니다.", order.getOrderId());
         }
 
-        System.out.println("DEBUG: Order Status Successfully Updated to: " + order.getStatus()); // 디버그 로그
+        log.debug("Order Status Successfully Updated to: {}", order.getStatus());
     }
 
 

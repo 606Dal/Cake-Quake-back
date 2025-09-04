@@ -1,9 +1,4 @@
-#server:
-#  port: 5000
 
-procurement:
-  cutoff-hour: 11    # 컷오프 시각 (시(hour) 단위)
-  transit-days: 1    # 배송 소요일수 (연속일)
 spring:
   servlet:
     multipart:
@@ -33,7 +28,6 @@ spring:
         options:
           model: ${OPENAI_MODEL}
 
-
   #JPA Config
   jpa:
     hibernate:
@@ -47,7 +41,6 @@ spring:
   sql:
     init:
       mode: never
-
 
   output:
     ansi:
@@ -72,30 +65,38 @@ spring:
       secret-key: ${TOSS_SECRET_KEY}   # 환경 변수에서 읽어오는 토스페이 Secret Key
 
   app:
-    base-url: https://cakequake.cakequake.click/api/v1  # 우리 서비스(앱) 기본 URL, ngrok 혹은 실제 도메인
-    front-url: https://cakequake.click
+    base-url: https://cake-quake.vercel.app/api/v1  # 우리 서비스(앱) 기본 URL, ngrok 혹은 실제 도메인
+    front-url: https://cake-quake.vercel.app
 
 jwt:
   secret: ${JWT_SECRET}
 
-#개발용 로그 레벨. 운영 시 변경 필요
-logging:
-  level:
-    com.cakequake: INFO
-    com.cakequake.cakequakeback.common: DEBUG
-    com.cakequake.cakequakeback.member: DEBUG
-    com.cakequake.cakequakeback.security: DEBUG
-    com.cakequake.cakequakeback.chatting : DEBUG
-    org.springframework.security: TRACE
-  file:
-    encoding: UTF-8
+procurement:
+  cutoff-hour: 11    # 컷오프 시각 (시(hour) 단위)
+  transit-days: 1    # 배송 소요일수 (연속일)
 
-cloud:
-  aws:
-    credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: ${BUCKET_NAME}
+---
+
+spring:
+  profiles:
+    active: prod
+
+---
+
+spring:
+  profiles:
+    active: local
+
+
+
+#cloud:
+#  aws:
+#    credentials:
+#      access-key: ${AWS_ACCESS_KEY}
+#      secret-key: ${AWS_SECRET_KEY}
+#    region:
+#      static: ap-northeast-2
+#    s3:
+#      bucket: ${BUCKET_NAME}
+
+

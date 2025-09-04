@@ -9,6 +9,7 @@ import com.cakequake.cakequakeback.payment.sercurity.EncryptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TossPayServiceImpl implements TossPayService {
     private final AppConfig appConfig;
     private final MerchantPaymentRepo merchantPaymentRepo;
@@ -63,7 +65,7 @@ public class TossPayServiceImpl implements TossPayService {
         String secretKey = encryptionService.decrypt(key.getEncryptedApiKey());  //토스 secret key
 
 
-        System.out.println(">>> [DEBUG] using secretKey: " + secretKey);  // test_sk_ 나오는지 확인
+        log.debug("using secretKey: {}", secretKey);  // test_sk_ 나오는지 확인
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -72,7 +74,7 @@ public class TossPayServiceImpl implements TossPayService {
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
         headers.set("Authorization", "Basic " + basicToken);
         //eaders.setBasicAuth(secretKey,""); //토스페이는 SecretKey만 Basic Auth로 전달(비어있는 패스워드 사용)
-        System.out.println(">>> [OUTGOING] Authorization = " + headers.getFirst("Authorization"));
+//        System.out.println(">>> [OUTGOING] Authorization = " + headers.getFirst("Authorization"));
 
         String orderString = "ORDER_" + orderId+"_"+ System.currentTimeMillis();
 
@@ -93,15 +95,15 @@ public class TossPayServiceImpl implements TossPayService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonBody = mapper.writeValueAsString(body);
-            System.out.println(">>> [DEBUG] Request JSON = " + jsonBody);
+            log.debug("Request JSON = {}", jsonBody);
         } catch (JsonProcessingException e) {
-            e.printStackTrace(); // 또는 로거로 처리
+            log.error("Request JSON 직렬화 실패", e);
         }
 
 
         HttpEntity<TossPayReadyRequestDTO> request = new HttpEntity<>(body, headers);
         String url = tossBaseUrl + READY_PATH;
-        System.out.println(">>> [DEBUG] 호출 URL = " + url);
+        log.debug("호출 URL = {}", url);
 
 
         ResponseEntity<TossPayReadyResponseDTO> responseEntity = appConfig.restTemplate().exchange(
@@ -133,7 +135,7 @@ public class TossPayServiceImpl implements TossPayService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBasicAuth(secretKey, "");
-        System.out.println(">>> [OUTGOING] Authorization = " + headers.getFirst("Authorization"));
+//        System.out.println(">>> [OUTGOING] Authorization = " + headers.getFirst("Authorization"));
 
 
         HttpEntity<TossPayCancelRequestDTO> request = new HttpEntity<>(cancelRequest, headers);
@@ -145,9 +147,9 @@ public class TossPayServiceImpl implements TossPayService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonBody = mapper.writeValueAsString(cancelRequest);
-            System.out.println(">>> [DEBUG] Request JSON = " + jsonBody);
+//            System.out.println(">>> [DEBUG] Request JSON = " + jsonBody);
         } catch (JsonProcessingException e) {
-            e.printStackTrace(); // 또는 로거로 처리
+            log.error("Request JSON 직렬화 실패", e);
         }
 
         ResponseEntity<TossPayCancelResponseDTO> response = appConfig.restTemplate().exchange(

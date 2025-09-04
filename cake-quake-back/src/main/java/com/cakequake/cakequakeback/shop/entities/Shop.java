@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -24,7 +25,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Log4j2
 public class Shop extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -92,63 +93,64 @@ public class Shop extends BaseEntity {
     public void updateShop(ShopUpdateDTO updateDTO){
         // shopId는 여기서 직접 접근할 수 없으므로, 필요하다면 상위 메서드에서 로그를 출력해야 합니다.
         // 여기서는 updateDTO의 각 필드들을 로그로 출력합니다.
+        log.debug("updateShop 호출됨, DTO 내용: {}", updateDTO);
 
-        System.out.println("DEBUG: updateShop 메서드 호출됨");
-        System.out.println("DEBUG: ShopUpdateDTO 내용 ---");
-        System.out.println("DEBUG: Address: " + updateDTO.getAddress());
-        System.out.println("DEBUG: Phone: " + updateDTO.getPhone());
-        System.out.println("DEBUG: Content: " + updateDTO.getContent());
-        System.out.println("DEBUG: OpenTime: " + updateDTO.getOpenTime());
-        System.out.println("DEBUG: CloseTime: " + updateDTO.getCloseTime());
-        System.out.println("DEBUG: CloseDays: " + updateDTO.getCloseDays());
-        System.out.println("DEBUG: WebsiteUrl: " + updateDTO.getWebsiteUrl());
-        System.out.println("DEBUG: InstagramUrl: " + updateDTO.getInstagramUrl());
-        System.out.println("DEBUG: Status: " + updateDTO.getStatus());
-        System.out.println("DEBUG: ThumbnailImageUrl: " + updateDTO.getThumbnailImageUrl());
-        System.out.println("DEBUG: --- ShopUpdateDTO 내용 종료");
+//        System.out.println("DEBUG: updateShop 메서드 호출됨");
+//        System.out.println("DEBUG: ShopUpdateDTO 내용 ---");
+//        System.out.println("DEBUG: Address: " + updateDTO.getAddress());
+//        System.out.println("DEBUG: Phone: " + updateDTO.getPhone());
+//        System.out.println("DEBUG: Content: " + updateDTO.getContent());
+//        System.out.println("DEBUG: OpenTime: " + updateDTO.getOpenTime());
+//        System.out.println("DEBUG: CloseTime: " + updateDTO.getCloseTime());
+//        System.out.println("DEBUG: CloseDays: " + updateDTO.getCloseDays());
+//        System.out.println("DEBUG: WebsiteUrl: " + updateDTO.getWebsiteUrl());
+//        System.out.println("DEBUG: InstagramUrl: " + updateDTO.getInstagramUrl());
+//        System.out.println("DEBUG: Status: " + updateDTO.getStatus());
+//        System.out.println("DEBUG: ThumbnailImageUrl: " + updateDTO.getThumbnailImageUrl());
+//        System.out.println("DEBUG: --- ShopUpdateDTO 내용 종료");
 
         if (updateDTO.getAddress() != null) {
             this.address = updateDTO.getAddress();
-            System.out.println("DEBUG: Address 업데이트됨: " + this.address);
+//            System.out.println("DEBUG: Address 업데이트됨: " + this.address);
         }
         if (updateDTO.getPhone() != null) {
             this.phone = updateDTO.getPhone();
-            System.out.println("DEBUG: Phone 업데이트됨: " + this.phone);
+//            System.out.println("DEBUG: Phone 업데이트됨: " + this.phone);
         }
         if (updateDTO.getContent() != null) {
             this.content = updateDTO.getContent();
-            System.out.println("DEBUG: Content 업데이트됨: " + this.content);
+//            System.out.println("DEBUG: Content 업데이트됨: " + this.content);
         }
         if (updateDTO.getOpenTime() != null) {
             this.openTime = updateDTO.getOpenTime();
-            System.out.println("DEBUG: OpenTime 업데이트됨: " + this.openTime);
+//            System.out.println("DEBUG: OpenTime 업데이트됨: " + this.openTime);
         }
         if (updateDTO.getCloseTime() != null) {
             this.closeTime = updateDTO.getCloseTime();
-            System.out.println("DEBUG: CloseTime 업데이트됨: " + this.closeTime);
+//            System.out.println("DEBUG: CloseTime 업데이트됨: " + this.closeTime);
         }
         if (updateDTO.getCloseDays() != null) {
             this.closeDays = updateDTO.getCloseDays();
-            System.out.println("DEBUG: CloseDays 업데이트됨: " + this.closeDays);
+//            System.out.println("DEBUG: CloseDays 업데이트됨: " + this.closeDays);
         }
         if (updateDTO.getWebsiteUrl() != null) {
             this.websiteUrl = updateDTO.getWebsiteUrl();
-            System.out.println("DEBUG: WebsiteUrl 업데이트됨: " + this.websiteUrl);
+//            System.out.println("DEBUG: WebsiteUrl 업데이트됨: " + this.websiteUrl);
         }
         if (updateDTO.getInstagramUrl() != null) {
             this.instagramUrl = updateDTO.getInstagramUrl();
-            System.out.println("DEBUG: InstagramUrl 업데이트됨: " + this.instagramUrl);
+//            System.out.println("DEBUG: InstagramUrl 업데이트됨: " + this.instagramUrl);
         }
         if (updateDTO.getStatus() != null) { // Enum 타입도 null 체크 필요
             this.status = updateDTO.getStatus();
-            System.out.println("DEBUG: Status 업데이트됨: " + this.status);
+//            System.out.println("DEBUG: Status 업데이트됨: " + this.status);
         }
         if (updateDTO.getThumbnailImageUrl() != null) {
             this.thumbnailImageUrl = updateDTO.getThumbnailImageUrl();
-            System.out.println("DEBUG: ThumbnailImageUrl 업데이트됨: " + this.thumbnailImageUrl);
+//            System.out.println("DEBUG: ThumbnailImageUrl 업데이트됨: " + this.thumbnailImageUrl);
         }
 
-        System.out.println("DEBUG: updateShop 메서드 종료.");
+//        System.out.println("DEBUG: updateShop 메서드 종료.");
     }
 
     public void updateThumbnailImageUrl(String thumbnailImageUrl) {

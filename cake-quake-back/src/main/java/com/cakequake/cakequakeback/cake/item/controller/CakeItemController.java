@@ -62,7 +62,7 @@ public class CakeItemController {
             @RequestPart(value = "newCakeImages", required = false) List<MultipartFile> newCakeImages,
             @RequestPart(value = "thumbnailImageUrl", required = false) MultipartFile thumbnailImageUrl) {
 
-        System.out.println("썸네일 URL: " + thumbnailImageUrl);
+        log.debug("썸네일 URL: {}", thumbnailImageUrl);
 
         cakeItemService.updateCake(shopId, cakeId, updateCakeDTO, newCakeImages);
 

@@ -16,6 +16,7 @@ import com.cakequake.cakequakeback.payment.repo.PaymentRepo;
 import com.cakequake.cakequakeback.payment.sercurity.EncryptionService;
 import com.cakequake.cakequakeback.point.service.PointService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,6 +30,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PaymentServiceImpl implements PaymentService{
 
     private final PaymentRepo paymentRepo;
@@ -225,8 +227,7 @@ public class PaymentServiceImpl implements PaymentService{
 
 
         if(provider == PaymentProvider.KAKAO){
-            System.out.println(">>> 카카오페이 취소 API 호출 직전: tid=" + payment.getTransactionId()
-                    + ", amount=" + payment.getAmount());
+            log.debug("카카오페이 취소 API 호출 직전: tid={}, amount={}", payment.getTransactionId(), payment.getAmount());
 
             //카카오페이 결제 취소 API 호출
             KakaoPayCancelResponseDTO cancelRes = kakaoPayService.cancel(paymentId);
@@ -241,13 +242,12 @@ public class PaymentServiceImpl implements PaymentService{
                 // 엔티티 상태 변경 & 저장
                 payment.cancelByBuyer(paymentCancelRequestDTO.getReason());
                 paymentRepo.save(payment);
-                System.out.println(">>> DB에 status=CANCELLED 로 저장완료");
+                log.info("DB에 status=CANCELLED 로 저장완료");
+
             }
-            System.out.println(">>> DB에 status=CANCELLED 로 저장완료");
-        }
+//            System.out.println(">>> DB에 status=CANCELLED 로 저장완료");
 
-
-        else if(provider == PaymentProvider.TOSS){
+        } else if(provider == PaymentProvider.TOSS){
 
             TossPayCancelRequestDTO cancelRequest = TossPayCancelRequestDTO.builder()
                     //.paymentKey(payment.getTransactionId())
@@ -307,14 +307,15 @@ public class PaymentServiceImpl implements PaymentService{
                     !( "CANCEL".equalsIgnoreCase(resStatus)
                             || "CANCEL_PAYMENT".equalsIgnoreCase(resStatus)
                             || "CANCELED".equalsIgnoreCase(resStatus) )) {
-                System.out.println(">>> [ERROR] cancelRes.getStatus() 가 환불(취소) 완료 상태가 아닙니다. 실제 status=" + resStatus);
+                log.error("cancelRes.getStatus() 가 환불(취소) 완료 상태가 아닙니다. 실제 status={}", resStatus);
+
                 throw new IllegalStateException("카카오페이 환불(취소) 실패. (status=" + resStatus + ")");
             }
 
             // 엔티티 상태 변경 & 저장 (refundByBuyer 메서드는 상태를 REFUNDED로 변경)
             payment.refundByBuyer(paymentRefundRequestDTO.getReason());
             paymentRepo.save(payment);
-            System.out.println(">>> DB에 status=REFUNDED 로 저장완료");
+            log.info("DB에 status=REFUNDED 로 저장완료");
 
         }
         else if(provider == PaymentProvider.TOSS){
