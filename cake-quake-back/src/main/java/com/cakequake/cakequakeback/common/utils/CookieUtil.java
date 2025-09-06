@@ -24,6 +24,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)      // HTTPS 사용 시 true
                 .path("/")
+                .domain(".api-cakequake.shop")
                 .sameSite("None") // HTTPS
                 .maxAge(Duration.ofMinutes(5))  // 유효기간 5분
                 .build();
@@ -37,6 +38,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)     // HTTPS
                 .path("/")
+                .domain(".api-cakequake.shop")
                 .sameSite("None")     // HTTPS
                 .maxAge(Duration.ofDays(7))  // 유효기간 7일
                 .build();
@@ -68,6 +70,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)     // HTTPS
                 .path("/")
+                .domain(".api-cakequake.shop")
                 .sameSite("None")
                 .maxAge(0)  // 삭제
                 .build();
