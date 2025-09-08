@@ -127,15 +127,15 @@ public class SellerServiceImpl implements SellerService{
         String sanitationImageName = null; // 위생 인증서
 
         // 이미지 저장 경로
-        String shopImageDir = "C:\\nginx-1.26.3\\html\\shop\\Images";
-        String sanitationImageDir = "C:\\nginx-1.26.3\\html\\selleruploads";
+//        String shopImageDir = "C:\\nginx-1.26.3\\html\\shop\\Images";
+//        String sanitationImageDir = "C:\\nginx-1.26.3\\html\\selleruploads";
 
         if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
-            shopImageName = customImageUtils.saveImageFile(dto.getShopImage(), shopImageDir);
+            shopImageName = customImageUtils.saveImageFile(dto.getShopImage(), pendingSellerDir);
         }
 
         if (dto.getSanitationCertificate() != null && !dto.getSanitationCertificate().isEmpty()) {
-            sanitationImageName = customImageUtils.saveImageFile(dto.getSanitationCertificate(), sanitationImageDir);
+            sanitationImageName = customImageUtils.saveImageFile(dto.getSanitationCertificate(), pendingSellerDir);
         }
     /* aws 배포용
         if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
