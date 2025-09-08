@@ -19,6 +19,7 @@ import com.cakequake.cakequakeback.shop.entities.Shop;
 import com.cakequake.cakequakeback.shop.entities.ShopStatus;
 import com.cakequake.cakequakeback.shop.repo.ShopRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,9 @@ public class SellerServiceImpl implements SellerService{
 //        this.fileStorageService = fileStorageService;
     }
 
+    @Value("${file.upload.pending-seller-dir}")
+    private String pendingSellerDir;
+
     @Override
     public ApiResponseDTO registerStepOne(SellerSignupStep1RequestDTO requestDTO) {
 
@@ -77,9 +81,9 @@ public class SellerServiceImpl implements SellerService{
             파일 처리 - 사업자 등록증 파일
         */
 
-        String uploadDir = "C:\\nginx-1.26.3\\html\\selleruploads";
+//        String uploadDir = "C:\\nginx-1.26.3\\html\\selleruploads";
 
-        String savedName = customImageUtils.saveImageFile(file, uploadDir);
+        String savedName = customImageUtils.saveImageFile(file, pendingSellerDir);
 //        String savedName = fileStorageService.storeFile(file, "images/sellerCertificates/");
 
         PendingSellerRequest pendingSeller = PendingSellerRequest.builder()

@@ -10,7 +10,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /*
-    이미지 파읠의 업로드 경로는 각 서비스에서 필요한 걸로 받아와서, 폴더 생성 후 실제 로컬에 파일 저장.
+    이미지 파일의 업로드 경로는 각 서비스에서 필요한 걸로 받아와서, 폴더 생성 후 실제 로컬에 파일 저장.
+    그 후 uuid + "_" + 원본파일명; 반환.
  */
 @Component
 public class CustomImageUtils {

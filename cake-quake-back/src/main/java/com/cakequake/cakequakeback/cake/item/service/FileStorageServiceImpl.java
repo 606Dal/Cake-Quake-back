@@ -1,5 +1,6 @@
 package com.cakequake.cakequakeback.cake.item.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +14,10 @@ import java.util.UUID;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-	String uploadDir = "C:\\nginx-1.26.3\\html\\upload";
+//	String uploadDir = "C:\\nginx-1.26.3\\html\\upload";
+
+	@Value("${file.upload.upload-dir}")
+	private String uploadDir;
 
 	@Override
 	public String storeFile(MultipartFile file) {
@@ -35,7 +39,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 			file.transferTo(filePath.toFile());
 
 			// 저장 후 URL 경로 리턴 (로컬일 경우 그냥 파일명이나 URL 기본 경로 합쳐서 반환)
-			return "/upload/" + newFileName;
+			return "/uploads/" + newFileName;
 
 		} catch (IOException e) {
 			throw new RuntimeException("파일 저장 실패: " + originalFilename, e);

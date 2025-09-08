@@ -23,6 +23,7 @@ import com.cakequake.cakequakeback.review.validator.BuyerReviewValidator;
 import com.cakequake.cakequakeback.temperature.service.TemperatureService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,9 @@ import java.util.UUID;
 @Log4j2
 public class BuyerReviewServiceImpl implements BuyerReviewService {
 
-    private static final String UPLOAD_DIR = "C:/nginx-1.26.3/html/reviewuploads";
+    @Value("${file.upload.review-dir}")
+    private String reviewDir;
+//    private static final String UPLOAD_DIR = "C:/nginx-1.26.3/html/reviewuploads";
 //    private final AmazonS3 amazonS3;
 //    private final String bucketName = "elasticbeanstalk-ap-northeast-2-853972008946";
 //    private final String UPLOAD_DIR = "images/reviewImages/";
@@ -72,7 +75,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
         MultipartFile file = dto.getReviewPictureUrl();
         String savedName = null;
         if (file != null && !file.isEmpty()) {
-            savedName = imageUtils.saveImageFile(file, UPLOAD_DIR);
+            savedName = imageUtils.saveImageFile(file, reviewDir);
         }
 
         String pictureUrl = (savedName != null)
@@ -182,7 +185,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
         // 3) 새 파일이 업로드 되었으면 저장하고 URL 갱신
         MultipartFile file = dto.getReviewPictureUrl();
         if (file != null && !file.isEmpty()) {
-            String savedName = imageUtils.saveImageFile(file, UPLOAD_DIR);
+            String savedName = imageUtils.saveImageFile(file, reviewDir);
             review.updateReviewPictureUrl("/reviewuploads/" + savedName);
         }
     /*
