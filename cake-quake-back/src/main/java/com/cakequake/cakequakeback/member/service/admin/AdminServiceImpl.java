@@ -3,6 +3,7 @@ package com.cakequake.cakequakeback.member.service.admin;
 import com.cakequake.cakequakeback.common.dto.InfiniteScrollResponseDTO;
 import com.cakequake.cakequakeback.common.exception.BusinessException;
 import com.cakequake.cakequakeback.common.exception.ErrorCode;
+import com.cakequake.cakequakeback.common.utils.CustomImageUtils;
 import com.cakequake.cakequakeback.member.dto.ApiResponseDTO;
 import com.cakequake.cakequakeback.member.dto.admin.PendingSellerPageRequestDTO;
 import com.cakequake.cakequakeback.member.dto.admin.PendingSellerRequestListDTO;
@@ -15,6 +16,7 @@ import com.cakequake.cakequakeback.shop.entities.ShopStatus;
 import com.cakequake.cakequakeback.shop.repo.ShopImageRepository;
 import com.cakequake.cakequakeback.shop.repo.ShopRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +29,21 @@ public class AdminServiceImpl implements AdminService{
     private final MemberRepository memberRepository;
     private final ShopRepository shopRepository;
     private final ShopImageRepository shopImageRepository;
+    private final CustomImageUtils customImageUtils;
 
-    public AdminServiceImpl(PendingSellerRequestRepository pendingSellerRequestRepository, MemberRepository memberRepository, ShopRepository shopRepository, ShopImageRepository shopImageRepository) {
+    public AdminServiceImpl(PendingSellerRequestRepository pendingSellerRequestRepository, MemberRepository memberRepository, ShopRepository shopRepository, ShopImageRepository shopImageRepository, CustomImageUtils customImageUtils) {
         this.pendingSellerRequestRepository = pendingSellerRequestRepository;
         this.memberRepository = memberRepository;
         this.shopRepository = shopRepository;
         this.shopImageRepository = shopImageRepository;
-    }
+		this.customImageUtils = customImageUtils;
+	}
+
+    @Value("${file.upload.pending-seller-dir}")
+    private String pendingDir;
+
+    @Value("${file.upload.upload-dir}")
+    private String uploadDir;
 
 
     @Transactional(readOnly = true)
@@ -89,7 +99,9 @@ public class AdminServiceImpl implements AdminService{
 
         shopRepository.save(shop);
 
-        // 2-1. 대표 이미지 등록
+        // 2-1. upload 폴더로 이미지 이동 후 DB에 저장
+        String finalFileName = customImageUtils.moveImageFile(request.getShopImageUrl(), pendingDir, uploadDir);
+
         ShopImage shopImage = ShopImage.builder()
                 .shop(shop)
                 .shopImageUrl(request.getShopImageUrl())

@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 /*
@@ -50,5 +52,29 @@ public class CustomImageUtils {
         }
 
         return savedName;
+    }
+
+    // 기존 파일을 다른 경로로 이동
+    public String moveImageFile(String fileName, String fromDir, String toDir) {
+        File sourceFile = new File(fromDir, fileName);
+        File targetDir = new File(toDir);
+
+        if (!sourceFile.exists()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_FILE, "이미지 파일을 찾을 수 없습니다: " + fileName);
+        }
+
+        if (!targetDir.exists()) {
+            targetDir.mkdirs();
+        }
+
+        File targetFile = new File(targetDir, fileName);
+
+        try {
+            Files.move(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 이동 중 오류 발생: " + fileName);
+        }
+
+        return fileName; // 이동된 파일명 그대로 반환
     }
 }
