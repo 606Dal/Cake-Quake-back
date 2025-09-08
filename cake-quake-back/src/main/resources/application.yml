@@ -78,8 +78,7 @@ procurement:
 file:
   upload:
     base-dir: /var/www/images
-    cake-dir: ${file.upload.base-dir}/cakeImages
-    shop-dir: ${file.upload.base-dir}/shopImages
+    upload-dir: ${file.upload.base-dir}/uploads
     pending-seller-dir: ${file.upload.base-dir}/pendingSellerUploads
     review-dir: ${file.upload.base-dir}/reviewuploads
 
