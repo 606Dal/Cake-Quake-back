@@ -73,9 +73,10 @@ public class CustomImageUtils {
         File targetFile = new File(targetDir, fileName);
 
         try {
-            Files.move(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.delete(sourceFile.toPath());
         } catch (IOException e) {
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 이동 중 오류 발생: " + fileName);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 복사/삭제 중 오류 발생: " + fileName);
         }
 
         return fileName; // 이동된 파일명 그대로 반환
