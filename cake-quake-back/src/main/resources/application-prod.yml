@@ -4,5 +4,10 @@ server:
 logging:
   level:
     root: INFO
+    org:
+      hibernate:
+        SQL: DEBUG
+      springframework:
+        web: DEBUG
   file:
     encoding: UTF-8
