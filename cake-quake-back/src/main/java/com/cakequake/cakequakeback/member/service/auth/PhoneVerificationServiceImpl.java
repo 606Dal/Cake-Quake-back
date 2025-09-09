@@ -9,6 +9,7 @@ import com.cakequake.cakequakeback.member.dto.ApiResponseDTO;
 import com.cakequake.cakequakeback.member.entities.PhoneVerification;
 import com.cakequake.cakequakeback.member.entities.VerificationType;
 import com.cakequake.cakequakeback.member.repo.MemberRepository;
+import com.cakequake.cakequakeback.member.repo.PendingSellerRequestRepository;
 import com.cakequake.cakequakeback.member.repo.PhoneVerificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,15 +24,16 @@ import java.util.Random;
 @Transactional
 @Slf4j
 public class PhoneVerificationServiceImpl implements PhoneVerificationService {
-    private final MemberRepository memberRepository;
-
     private final PhoneVerificationRepository repository;
+    private final MemberRepository memberRepository;
+    private final PendingSellerRequestRepository pendingSellerRequestRepository;
 
     public PhoneVerificationServiceImpl(PhoneVerificationRepository repository,
-                                        MemberRepository memberRepository) {
+										MemberRepository memberRepository, PendingSellerRequestRepository pendingSellerRequestRepository) {
         this.repository = repository;
         this.memberRepository = memberRepository;
-    }
+		this.pendingSellerRequestRepository = pendingSellerRequestRepository;
+	}
 
     private static final int CODE_LENGTH = 6;
     private static final int EXPIRES_MINUTES = 3;   // 인증번호 유효시간. 3분
@@ -61,10 +63,11 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
         switch (type) {
             case SIGNUP, CHANGE -> {
                 log.debug("SIGNUP, CHANGE");
-                // 전화번호 중복 검사
-                if (memberRepository.existsByPhoneNumber(rawPhoneNumber)) {
+                // user 테이블과 승인대기 테이블에서 전화번호 중복 검사
+                if (pendingSellerRequestRepository.existsByPhoneNumber(rawPhoneNumber)) {
                     throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
-
+                }else if (memberRepository.existsByPhoneNumber(rawPhoneNumber)) {
+                    throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
                 }
 
             }
@@ -98,7 +101,6 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
             existing.changeCode(code, expiresAt);
             repository.save(existing);
 
-//            log.debug("수정 후 modDate: {}", existing.getModDate());
         } else {
             // 최초 인증 요청 저장
             PhoneVerification newVerification = PhoneVerification.builder()
