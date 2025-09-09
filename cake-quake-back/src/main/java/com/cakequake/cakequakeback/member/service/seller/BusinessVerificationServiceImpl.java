@@ -84,6 +84,10 @@ public class BusinessVerificationServiceImpl implements BusinessVerificationServ
             BusinessVerificationResultDTO result = responseBody.getData().get(0);
 //            log.debug("result.getValid(): {}, getValid_msg(): {}", result.getValid(), result.getValid_msg());
 
+            if (result == null || result.getValid() == null) {
+                throw new BusinessException(ErrorCode.BUSINESS_VERIFICATION_FAILED);
+            }
+
             String validCode = result.getValid();
             String message = null;
 
@@ -104,15 +108,20 @@ public class BusinessVerificationServiceImpl implements BusinessVerificationServ
             String responseBody = e.getResponseBodyAsString();
 
             try {
-                BusinessVerificationResponseDTO errorResponse = objectMapper.readValue(responseBody, BusinessVerificationResponseDTO.class);
-                handleStatusCode(errorResponse.getStatus_code());
+                BusinessVerificationResponseDTO errorResponse =
+                        objectMapper.readValue(responseBody, BusinessVerificationResponseDTO.class);
+
+                if (errorResponse != null && errorResponse.getStatus_code() != null) {
+                    handleStatusCode(errorResponse.getStatus_code());
+                }
+
+                throw new BusinessException(ErrorCode.BUSINESS_VERIFICATION_FAILED);
 
             } catch (JsonProcessingException jsonException) {
                 log.error("응답 JSON 파싱 실패", jsonException);
                 throw new BusinessException(ErrorCode.BUSINESS_UNKNOWN_ERROR);
             }
 
-            throw new BusinessException(ErrorCode.BUSINESS_UNKNOWN_ERROR);
         } // end try~catch
 
     }
