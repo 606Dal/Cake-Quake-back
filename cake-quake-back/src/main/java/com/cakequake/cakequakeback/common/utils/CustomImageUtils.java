@@ -2,6 +2,7 @@ package com.cakequake.cakequakeback.common.utils;
 
 import com.cakequake.cakequakeback.common.exception.BusinessException;
 import com.cakequake.cakequakeback.common.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
     이미지 파일의 업로드 경로는 각 서비스에서 필요한 걸로 받아와서, 폴더 생성 후 실제 로컬에 파일 저장.
     그 후 uuid + "_" + 원본파일명; 반환.
  */
+@Slf4j
 @Component
 public class CustomImageUtils {
 
@@ -58,6 +60,7 @@ public class CustomImageUtils {
     public String moveImageFile(String fileName, String fromDir, String toDir) {
         File sourceFile = new File(fromDir, fileName);
         File targetDir = new File(toDir);
+        log.debug("fromDir: {}, toDir: {}", fromDir, toDir);
 
         if (!sourceFile.exists()) {
             throw new BusinessException(ErrorCode.NOT_FOUND_FILE, "이미지 파일을 찾을 수 없습니다: " + fileName);
