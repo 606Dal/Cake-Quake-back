@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface PendingSellerRequestRepository extends JpaRepository<PendingSellerRequest, Long>, PendingSellerRequestCustomRepository {
 
     Optional<Object> findByUserId(String userId);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 }

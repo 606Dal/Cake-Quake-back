@@ -67,6 +67,12 @@ public class SellerServiceImpl implements SellerService{
             중복 검사 - userId, 전화번호
         */
         memberValidator.validateSellerSignup(requestDTO);
+
+        // 승인 대기 테이블에서 전화번호 중복 검사
+        if (pendingSellerRequestRepository.existsByPhoneNumber(requestDTO.getPhoneNumber())) {
+            throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
+        }
+
         log.debug("---registerStepOne---memberValidator 통과---");
 
         // basic 가입일 때만 비밀번호 인코딩
