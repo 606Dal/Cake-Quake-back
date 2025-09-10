@@ -3,6 +3,7 @@ package com.cakequake.cakequakeback.common.utils;
 import com.cakequake.cakequakeback.common.exception.BusinessException;
 import com.cakequake.cakequakeback.common.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+
+import static net.coobird.thumbnailator.Thumbnailator.createThumbnail;
 
 /*
     이미지 파일의 업로드 경로는 각 서비스에서 필요한 걸로 받아와서, 폴더 생성 후 실제 로컬에 파일 저장.
@@ -60,7 +63,7 @@ public class CustomImageUtils {
     public String moveImageFile(String fileName, String fromDir, String toDir) {
         File sourceFile = new File(fromDir, fileName);
         File targetDir = new File(toDir);
-        log.debug("fromDir: {}, toDir: {}", fromDir, toDir);
+//        log.debug("fromDir: {}, toDir: {}", fromDir, toDir);
 
         if (!sourceFile.exists()) {
             throw new BusinessException(ErrorCode.NOT_FOUND_FILE, "이미지 파일을 찾을 수 없습니다: " + fileName);
@@ -75,10 +78,25 @@ public class CustomImageUtils {
         try {
             Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             Files.delete(sourceFile.toPath());
+
+            // 이동된 파일 기반으로 썸네일 생성
+            File thumbnailFile = new File(targetDir, "s_" + fileName);
+            createThumbnail(targetFile, thumbnailFile);
+
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 복사/삭제 중 오류 발생: " + fileName);
         }
 
         return fileName; // 이동된 파일명 그대로 반환
+    }
+
+    private void createThumbnail(File source, File target) {
+        try {
+            Thumbnails.of(source)
+                    .size(200, 200)
+                    .toFile(target);
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "썸네일 생성 실패: " + source.getName());
+        }
     }
 }
