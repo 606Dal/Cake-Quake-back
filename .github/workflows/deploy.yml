@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - develop   # develop 브랜치에 push 될 때 배포
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build-and-deploy:
