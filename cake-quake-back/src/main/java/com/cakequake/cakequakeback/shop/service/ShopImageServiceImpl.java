@@ -75,46 +75,52 @@ public class ShopImageServiceImpl implements ShopImageService {
 
     //이미지 정보 업데이트 (개선된 로직)
     @Override
-    public ImageResponseDTO updateShopImages(Shop shop, List<Long> imageUrls, List<MultipartFile> newImageFiles, Long thumbnailFileId, String thumbnailUrl) {
+    public ImageResponseDTO updateShopImages(
+            Shop shop,
+            List<Long> imageUrls,
+            List<MultipartFile> newImageFiles,
+            Long thumbnailFileId,
+            String thumbnailUrl
+    ) {
 
 
-        log.info("DEBUG: [ShopImageService] updateShopImages 메서드 시작. shopId: " + shop.getShopId());
-        log.info("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): " + (imageUrls != null ? imageUrls.toString() : "null"));
-        log.info("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): " + (newImageFiles != null ? newImageFiles.size() : 0));
-        log.info("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): " + thumbnailFileId);
-        log.info("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): " + thumbnailUrl);
+		log.debug("DEBUG: [ShopImageService] updateShopImages 메서드 시작. shopId: {}", shop.getShopId());
+//		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): {}", imageUrls != null ? imageUrls.toString() : "null");
+//		log.debug("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): {}", newImageFiles != null ? newImageFiles.size() : 0);
+//		log.debug("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): {}", thumbnailFileId);
+//		log.debug("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): {}", thumbnailUrl);
 
         List<ShopImage> shopImages = shopImageRepository.findByShop(shop);
-        log.info("DEBUG: [ShopImageService] 현재 샵의 기존 이미지 수: " + shopImages.size());
+//		log.debug("DEBUG: [ShopImageService] 현재 샵의 기존 이미지 수: {}", shopImages.size());
 
-        Set<Long> imageUrlSet=new HashSet<>(imageUrls != null ? imageUrls : new ArrayList<>());
-        log.info("DEBUG: [ShopImageService] 유지할 이미지 ID Set: " + imageUrlSet);
+        Set<Long> imageUrlSet = new HashSet<>(imageUrls != null ? imageUrls : new ArrayList<>());
+//		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID Set: {}", imageUrlSet);
 
         // 1. 기존 이미지 삭제 로직 (유지할 목록에 없는 이미지는 삭제)
         List<ShopImage> imagesToDelete = new ArrayList<>();
         for (ShopImage shopImage : shopImages) {
             if (shopImage.getShopImageId() != null && !imageUrlSet.contains(shopImage.getShopImageId())) {
                 imagesToDelete.add(shopImage);
-                log.debug("[ShopImageService] 삭제할 이미지 발견 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
+//                log.debug("[ShopImageService] 삭제할 이미지 발견 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
             }
         }
         for (ShopImage img : imagesToDelete) {
             fileStorageService.deleteFile(img.getShopImageUrl()); // 물리 파일 삭제
             shopImageRepository.delete(img); // DB에서 이미지 레코드 삭제
-            log.debug("[ShopImageService] 이미지 삭제 완료 (ID: {})", img.getShopImageId());
+//            log.debug("[ShopImageService] 이미지 삭제 완료 (ID: {})", img.getShopImageId());
         }
 
 
         // 2. 기존 썸네일 플래그 해제 로직 (모든 이미지의 isThumbnail을 false로 초기화)
         // 남아있는 이미지 중에서 isThumbnail이 true인 것을 찾아 false로 변경
         List<ShopImage> remainImagesAfterDeletion = shopImageRepository.findByShop(shop); // 삭제 후 남아있는 이미지 다시 조회 (정확성을 위해)
-        log.debug("[ShopImageService] 이미지 삭제 후 남아있는 이미지 수: {}", remainImagesAfterDeletion.size());
+//        log.debug("[ShopImageService] 이미지 삭제 후 남아있는 이미지 수: {}", remainImagesAfterDeletion.size());
 
         for (ShopImage shopImage : remainImagesAfterDeletion) {
             if (shopImage.getIsThumbnail()) {
                 shopImage.deleteThumbnail(); // isThumbnail을 false로 설정하는 메서드
                 shopImageRepository.save(shopImage);
-                log.debug("[ShopImageService] 기존 썸네일 플래그 해제 완료 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
+//                log.debug("[ShopImageService] 기존 썸네일 플래그 해제 완료 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
             }
         }
 
@@ -142,9 +148,9 @@ public class ShopImageServiceImpl implements ShopImageService {
                         .shopImageUrl(url)
                         .isThumbnail(false)
                         .build());
-                log.debug("[ShopImageService] 새 이미지 저장 완료 (Original: {}, URL: {}, ID: {})", originalFilename, url, newShopImage.getShopImageId());
+//                log.debug("[ShopImageService] 새 이미지 저장 완료 (Original: {}, URL: {}, ID: {})", originalFilename, url, newShopImage.getShopImageId());
             }
-            log.debug("[ShopImageService] 새 이미지 파일 처리 완료. 총 {}개 저장.", savedShopImageDTOs.size());
+//            log.debug("[ShopImageService] 새 이미지 파일 처리 완료. 총 {}개 저장.", savedShopImageDTOs.size());
         } else {
             log.debug("[ShopImageService] 새로 업로드될 파일이 없습니다.");
         }
@@ -156,24 +162,24 @@ public class ShopImageServiceImpl implements ShopImageService {
 
         // A. 프론트에서 '기존 이미지' 중 썸네일로 지정할 ID를 넘겨준 경우
         if (thumbnailFileId != null) {
-            log.debug("[ShopImageService] 썸네일 지정 시도: 기존 이미지 ID({})로 지정.", thumbnailFileId);
+//            log.debug("[ShopImageService] 썸네일 지정 시도: 기존 이미지 ID({})로 지정.", thumbnailFileId);
             finalThumbnailUrl = shopImageRepository.findById(thumbnailFileId)
                     .map(shopImage -> {
                         shopImage.changeThumbnail(); // isThumbnail을 true로 설정하는 메서드
                         shopImageRepository.save(shopImage);
-                        log.debug("[ShopImageService] 기존 이미지 ID로 썸네일 설정 완료 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
+//                        log.debug("[ShopImageService] 기존 이미지 ID로 썸네일 설정 완료 (ID: {}, URL: {})", shopImage.getShopImageId(), shopImage.getShopImageUrl());
                         return shopImage.getShopImageUrl();
                     }).orElseGet(() -> {
-                        log.debug("[ShopImageService] 지정된 기존 이미지 ID({})를 찾을 수 없습니다.", thumbnailFileId);
+//                        log.debug("[ShopImageService] 지정된 기존 이미지 ID({})를 찾을 수 없습니다.", thumbnailFileId);
                         return null;
                     });
         }
         // B. 프론트에서 '새로 업로드된 파일'의 원본 이름 (또는 식별자)을 썸네일로 명시한 경우
         else if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            log.debug("[ShopImageService] 썸네일 지정 시도: DTO의 thumbnailUrlFromDTO({})로 지정.", thumbnailUrl);
+//            log.debug("[ShopImageService] 썸네일 지정 시도: DTO의 thumbnailUrlFromDTO({})로 지정.", thumbnailUrl);
             String urlOfNewFile = saveNewFileUrl.get(thumbnailUrl); // 새로 저장된 URL 맵에서 찾아봄
             if (urlOfNewFile != null) {
-                log.debug("[ShopImageService] DTO의 썸네일 파일 이름에 해당하는 저장된 URL: {}", urlOfNewFile);
+//                log.debug("[ShopImageService] DTO의 썸네일 파일 이름에 해당하는 저장된 URL: {}", urlOfNewFile);
                 // 이 URL을 가진 ShopImage를 찾아서 isThumbnail을 true로 설정
                 finalThumbnailUrl = shopImageRepository.findByShop(shop).stream()
                         .filter(shopImage -> shopImage.getShopImageUrl().equals(urlOfNewFile))
@@ -181,8 +187,6 @@ public class ShopImageServiceImpl implements ShopImageService {
                         .map(shopImage -> {
                             shopImage.changeThumbnail();
                             shopImageRepository.save(shopImage);
-                            log.debug("[ShopImageService] DTO의 thumbnailUrlFromDTO로 썸네일 설정 완료 (ID: {}, URL: {})",
-                                    shopImage.getShopImageId(), shopImage.getShopImageUrl());
                             return shopImage.getShopImageUrl();
                         }).orElseGet(() -> {
                             log.debug("[ShopImageService] DTO의 thumbnailUrlFromDTO에 해당하는 ShopImage를 찾을 수 없습니다.");
@@ -201,8 +205,8 @@ public class ShopImageServiceImpl implements ShopImageService {
                         .map(shopImage -> {
                             shopImage.changeThumbnail();
                             shopImageRepository.save(shopImage);
-                            log.debug("[ShopImageService] 새로 업로드된 첫 번째 이미지로 썸네일 설정 완료 (ID: {}, URL: {})",
-                                    shopImage.getShopImageId(), shopImage.getShopImageUrl());
+//                            log.debug("[ShopImageService] 새로 업로드된 첫 번째 이미지로 썸네일 설정 완료 (ID: {}, URL: {})",
+//                                    shopImage.getShopImageId(), shopImage.getShopImageUrl());
                             return shopImage.getShopImageUrl();
                         }).orElseGet(() -> {
                             log.debug("[ShopImageService] 새로 업로드된 첫 번째 이미지 ID({})를 찾을 수 없습니다.", firstNewImageDto.getShopImageId());
@@ -221,9 +225,8 @@ public class ShopImageServiceImpl implements ShopImageService {
             log.debug("[ShopImageService] 최종적으로 설정된 썸네일 URL이 없습니다. 썸네일이 null로 반환됩니다.");
         }
 
-
-        log.debug("[ShopImageService] 최종 반환될 썸네일 URL: {}", finalThumbnailUrl);
-        log.debug("[ShopImageService] updateShopImages 메서드 종료.");
+//        log.debug("[ShopImageService] 최종 반환될 썸네일 URL: {}", finalThumbnailUrl);
+//        log.debug("[ShopImageService] updateShopImages 메서드 종료.");
 
         return ImageResponseDTO.builder()
                 .shopImageDTOS(savedShopImageDTOs)
@@ -236,7 +239,6 @@ public class ShopImageServiceImpl implements ShopImageService {
     @Override
     public String saveFileAndGetUrl(MultipartFile file){
         return fileStorageService.storeFile(file);
-//        return fileStorageService.storeFile(file, "images/shopImages/");
     }
 
 

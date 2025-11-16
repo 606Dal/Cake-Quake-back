@@ -2,6 +2,7 @@ package com.cakequake.cakequakeback.shop.dto;
 
 import com.cakequake.cakequakeback.cake.item.dto.ImageDTO;
 import com.cakequake.cakequakeback.shop.entities.ShopStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +28,12 @@ public class ShopUpdateDTO {
     private String instagramUrl;
     private ShopStatus status;
     private String thumbnailImageUrl;
-    private List<Long> imageIds;
+//    private List<Long> imageIds;
+
+    // 프론트 구조에 맞게 변경
+    @JsonProperty("imageUrls")
+    private List<ShopImageDTO> imageUrls;
+
     private Long thumbnailImageId;
 
 

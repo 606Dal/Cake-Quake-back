@@ -49,9 +49,7 @@ public class CustomSecurityConfig {
         log.info("------------------Security Config-----------------------");
 
         http.authorizeHttpRequests(auth -> {
-//            log.debug(String.valueOf(SecurityContextHolder.getContext().getAuthentication()));
 
-//            auth.requestMatchers("/**").permitAll(); // 모든 요청 허용
             auth.requestMatchers(
                     "/api/v1/auth/signup/**",
                     "/api/v1/auth/signin/**",
@@ -103,13 +101,9 @@ public class CustomSecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         corsConfiguration.setAllowedOriginPatterns(List.of(
-//                "https://cakequake.click",
-//                "http://cakequake.click",
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "https://cake-quake.vercel.app"
-//                "https://*.ngrok-free.app",
-//                "http://localhost:80"
                 )
         ); // 배포 후 변경
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"));

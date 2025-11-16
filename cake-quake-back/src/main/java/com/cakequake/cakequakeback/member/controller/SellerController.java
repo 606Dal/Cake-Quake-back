@@ -41,7 +41,6 @@ public class SellerController {
 
     @PatchMapping("/withdraw")
     public ResponseEntity<ApiResponseDTO> withdrawSeller() {
-        log.debug("---SellerController---withdrawSeller---");
 
         ApiResponseDTO response = sellerService.withdrawSeller();
         return ResponseEntity.ok(response);

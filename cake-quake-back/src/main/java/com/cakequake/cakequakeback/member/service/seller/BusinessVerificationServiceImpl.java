@@ -50,13 +50,10 @@ public class BusinessVerificationServiceImpl implements BusinessVerificationServ
         }
 
         log.debug("---BusinessVerificationServiceImpl---verify 호출---");
-//        log.debug("requestDTO: {}", requestDTO);
 
         String serviceKey = properties.getServiceKey();
-//        log.debug("serviceKey: {}", serviceKey);
 
         String url = "https://api.odcloud.kr/api/nts-businessman/v1/validate?serviceKey=" + serviceKey;
-//        log.debug("url: {}", url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -82,7 +79,6 @@ public class BusinessVerificationServiceImpl implements BusinessVerificationServ
             }
 
             BusinessVerificationResultDTO result = responseBody.getData().get(0);
-//            log.debug("result.getValid(): {}, getValid_msg(): {}", result.getValid(), result.getValid_msg());
 
             if (result == null || result.getValid() == null) {
                 throw new BusinessException(ErrorCode.BUSINESS_VERIFICATION_FAILED);

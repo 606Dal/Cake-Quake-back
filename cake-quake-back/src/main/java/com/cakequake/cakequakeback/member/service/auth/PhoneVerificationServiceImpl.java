@@ -49,7 +49,6 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
 
         String code = generateRandomCode(CODE_LENGTH);
         VerificationType type = requestDTO.getType();
-//        log.debug("VerificationType: {}", type);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiresAt = now.plusMinutes(EXPIRES_MINUTES); // 만료 시간 계산
@@ -62,7 +61,6 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
         // 타입별 예외 분리
         switch (type) {
             case SIGNUP, CHANGE -> {
-                log.debug("SIGNUP, CHANGE");
                 // user 테이블과 승인대기 테이블에서 전화번호 중복 검사
                 if (pendingSellerRequestRepository.existsByPhoneNumber(rawPhoneNumber)) {
                     throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
@@ -86,8 +84,6 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
 
             // 기존 인증 요청이 있을 경우
             PhoneVerification existing = verificationOpt.get();
-
-//            log.debug("기존 요청 modDate: {}", existing.getModDate());
 
             // 인증번호 재전송 제한: 최근 요청이 1분 이내일 경우 차단
             if (existing.getModDate() != null &&
@@ -131,32 +127,31 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
         // 전화번호 정규화 (하이픈 제거)
         String normalized = PhoneNumberUtils.normalize(rawPhoneNumber);
 
-//        String phoneNumber = checkDTO.getPhoneNumber();
         String code = checkDTO.getCode();
         VerificationType type = checkDTO.getType();
 
         // 전화번호 또는 코드 형식 검증
         if (!PhoneNumberUtils.isValid(normalized)) {
-            throw new BusinessException(ErrorCode.INVALID_PHONE); // 604
+            throw new BusinessException(ErrorCode.INVALID_PHONE);
         }
         if (!isValidOtp(code)) {
-            throw new BusinessException(ErrorCode.INVALID_OTP_FORMAT); // 622
+            throw new BusinessException(ErrorCode.INVALID_OTP_FORMAT);
         }
 
         // 번호와 코드로 db에 인증 요청 조회
         PhoneVerification verification = repository.findByPhoneNumberAndCodeAndType(normalized, code, type)
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_OTP)); // 807_잘못된 인증
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_OTP));
 
         // 이미 이 인증 요청은 완료된 상태
         log.debug("현재 verified 상태: {}", verification.isVerified());
         if (verification.isVerified()) {
             log.warn("이미 인증 완료된 번호입니다. 예외 발생!");
-            throw new BusinessException(ErrorCode.ALREADY_VERIFIED_PHONE); // 716
+            throw new BusinessException(ErrorCode.ALREADY_VERIFIED_PHONE);
         }
 
         // 만료된 인증번호 입력한 경우
         if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BusinessException(ErrorCode.EXPIRED_OTP); // 808
+            throw new BusinessException(ErrorCode.EXPIRED_OTP);
         }
 
         // 검증 성공 → 인증 완료 처리
@@ -177,6 +172,6 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
 
     // 인증 코드 형식 검사
     private boolean isValidOtp(String code) {
-        return code != null && code.matches("^\\d{6}$"); // 6자리 숫자
+        return code != null && code.matches("^\\d{6}$");
     }
 }

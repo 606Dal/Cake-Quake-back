@@ -39,12 +39,14 @@ public class AdminServiceImpl implements AdminService{
 		this.customImageUtils = customImageUtils;
 	}
 
+//    private String pendingDir = "C:\\nginx-1.26.3\\html\\pendingSellerUploads";
+//    private String uploadDir = "C:\\nginx-1.26.3\\html\\uploads";
+
     @Value("${file.upload.pending-seller-dir}")
     private String pendingDir;
 
     @Value("${file.upload.upload-dir}")
     private String uploadDir;
-
 
     @Transactional(readOnly = true)
     @Override

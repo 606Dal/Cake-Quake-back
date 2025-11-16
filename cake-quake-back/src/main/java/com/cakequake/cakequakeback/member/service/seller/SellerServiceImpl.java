@@ -38,9 +38,8 @@ public class SellerServiceImpl implements SellerService{
     private final CustomImageUtils customImageUtils;
 
     private final AuthenticatedUserService authenticatedUserService;
-//    private final FileStorageService fileStorageService;
 
-    public SellerServiceImpl(PendingSellerRequestRepository pendingSellerRequestRepository, PasswordEncoder passwordEncoder, MemberValidator memberValidator, CustomImageUtils customImageUtils, MemberRepository memberRepository, ShopRepository shopRepository, AuthenticatedUserService authenticatedUserService, FileStorageService fileStorageService) {
+    public SellerServiceImpl(PendingSellerRequestRepository pendingSellerRequestRepository, PasswordEncoder passwordEncoder, MemberValidator memberValidator, CustomImageUtils customImageUtils, MemberRepository memberRepository, ShopRepository shopRepository, AuthenticatedUserService authenticatedUserService) {
         this.pendingSellerRequestRepository = pendingSellerRequestRepository;
         this.passwordEncoder = passwordEncoder;
         this.memberValidator = memberValidator;
@@ -48,16 +47,17 @@ public class SellerServiceImpl implements SellerService{
         this.memberRepository = memberRepository;
         this.shopRepository = shopRepository;
         this.authenticatedUserService = authenticatedUserService;
-//        this.fileStorageService = fileStorageService;
     }
+
+    // 로컬 테스트용
+//    private String pendingSellerDir = "C:\\nginx-1.26.3\\html\\pendingSellerUploads";
 
     @Value("${file.upload.pending-seller-dir}")
     private String pendingSellerDir;
 
+
     @Override
     public ApiResponseDTO registerStepOne(SellerSignupStep1RequestDTO requestDTO) {
-
-//        log.info("---registerStepOne---requestDTO: {}", requestDTO.toString());
 
         SocialType joinType = SocialType.from(requestDTO.getJoinType());
         MultipartFile file = requestDTO.getBusinessCertificate();
@@ -73,24 +73,16 @@ public class SellerServiceImpl implements SellerService{
             throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
         }
 
-        log.debug("---registerStepOne---memberValidator 통과---");
-
         // basic 가입일 때만 비밀번호 인코딩
         String encodedPassword = null;
         if (joinType == SocialType.BASIC) {
             encodedPassword = passwordEncoder.encode(requestDTO.getPassword());
         }
 
-        // 휴대폰 인증, 사업자 등록 진위여부 검증은 프론트에서 따로 호출
+        /* 휴대폰 인증, 사업자 등록 진위여부 검증은 프론트에서 따로 호출 */
 
-        /*
-            파일 처리 - 사업자 등록증 파일
-        */
-
-//        String uploadDir = "C:\\nginx-1.26.3\\html\\selleruploads";
-
+        // 파일 처리 - 사업자 등록증 파일
         String savedName = customImageUtils.saveImageFile(file, pendingSellerDir);
-//        String savedName = fileStorageService.storeFile(file, "images/sellerCertificates/");
 
         PendingSellerRequest pendingSeller = PendingSellerRequest.builder()
                 .userId(requestDTO.getUserId())
@@ -118,7 +110,6 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ApiResponseDTO registerStepTwo(SellerSignupStep2RequestDTO dto) {
-//        log.debug("SellerSignupStep2RequestDTO: {}", dto.toString());
 
         // 가입 2단계 DTO 형식 검사 + 매장 번호 중복 검사
         memberValidator.validateSellerSignup2(dto);
@@ -132,10 +123,6 @@ public class SellerServiceImpl implements SellerService{
         String shopImageName = null; // 대표 이미지
         String sanitationImageName = null; // 위생 인증서
 
-        // 이미지 저장 경로
-//        String shopImageDir = "C:\\nginx-1.26.3\\html\\shop\\Images";
-//        String sanitationImageDir = "C:\\nginx-1.26.3\\html\\selleruploads";
-
         if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
             shopImageName = customImageUtils.saveImageFile(dto.getShopImage(), pendingSellerDir);
         }
@@ -143,6 +130,7 @@ public class SellerServiceImpl implements SellerService{
         if (dto.getSanitationCertificate() != null && !dto.getSanitationCertificate().isEmpty()) {
             sanitationImageName = customImageUtils.saveImageFile(dto.getSanitationCertificate(), pendingSellerDir);
         }
+
     /* aws 배포용
         if (dto.getShopImage() != null && !dto.getShopImage().isEmpty()) {
             shopImageName = fileStorageService.storeFile(dto.getShopImage(), "images/shopImages/");
@@ -152,7 +140,6 @@ public class SellerServiceImpl implements SellerService{
             sanitationImageName = fileStorageService.storeFile(dto.getSanitationCertificate(), "images/sellerCertificates/");
         }
     */
-        log.debug("shopImageName: {}, sanitationImageName: {}", shopImageName, sanitationImageName);
 
         // 판매자 정보 업데이트
         pendingSeller.changeAddress(dto.getShopAddress());
@@ -173,7 +160,7 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ApiResponseDTO getSellerProfile(Long uid) {
-        // uid가 없는 경우
+
         if(uid == null) throw new BusinessException(ErrorCode.NOT_FOUND_UID);
 
         String currentUserId = authenticatedUserService.getCurrentMember().getUserId();
@@ -227,7 +214,7 @@ public class SellerServiceImpl implements SellerService{
             memberValidator.validatePhoneNumber(modifyDTO.getPhoneNumber());
         }
 
-        // 휴대폰 인증은 프론트에서 따로 호출
+        /* 휴대폰 인증은 프론트에서 따로 호출 */
 
         seller.changeUname(modifyDTO.getUname());
         seller.changePhoneNumber(modifyDTO.getPhoneNumber());
@@ -243,6 +230,7 @@ public class SellerServiceImpl implements SellerService{
     // 판매자 탈퇴 시 상태 변경과 매장 상태도 함께 변경
     @Override
     public ApiResponseDTO withdrawSeller() {
+
         Member member = authenticatedUserService.getCurrentMember();
 
         member.withdraw(); // Repository에서 탈퇴 status 세팅(status ACTIVE -> WITHDRAWN)
@@ -253,7 +241,6 @@ public class SellerServiceImpl implements SellerService{
                     .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_SHOP_ID));
 
             shop.changeStatus(ShopStatus.CLOSED);
-            log.debug("ShopStatus: {}", shop.getStatus());
             shopRepository.save(shop); // 상태 저장
         } // end if
 

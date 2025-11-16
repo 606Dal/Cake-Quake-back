@@ -29,7 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -201,7 +203,7 @@ public class ShopServiceImpl implements ShopService {
 
     //공지사항 추가
     @Override
-   public Long createNotice(Long shopId, ShopNoticeDTO noticeDTO){
+    public Long createNotice(Long shopId, ShopNoticeDTO noticeDTO){
         Shop shop =shopValidator.validateShop(shopId);
 
         ShopNotice notice = ShopNotice.builder()
@@ -240,6 +242,37 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = shopValidator.validateShop(shopId);
         shopValidator.validateUpdateShop(updateDTO);
 
+        // 유지할 기존 이미지 ID 목록
+        List<Long> imageIds = null;
+        if (updateDTO.getImageUrls() != null) {
+            imageIds = updateDTO.getImageUrls().stream()
+                    .map(ShopImageDTO::getShopImageId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+
+        // 기존 이미지의 썸네일 ID
+        Long oldThumbnailImageId = null;
+        if (updateDTO.getImageUrls() != null) {
+            oldThumbnailImageId = updateDTO.getImageUrls().stream()
+                    .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
+                    .map(ShopImageDTO::getShopImageId)   // 기존 이미지만 필터
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // '새 이미지'의 썸네일 (ID 없음 → originalFilename으로 처리)
+        String newThumbnailOriginalFilename = null;
+        if (updateDTO.getImageUrls() != null) {
+            newThumbnailOriginalFilename = updateDTO.getImageUrls().stream()
+                    .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
+                    .filter(img -> img.getShopImageId() == null)     // 새 이미지
+                    .map(ShopImageDTO::getShopImageUrl)   // originalFilename
+                    .findFirst()
+                    .orElse(null);
+        }
+
         // 주소가 있으면 좌표 변환 후, 새 DTO 복사본 생성
         if (updateDTO.getAddress() != null && !updateDTO.getAddress().isEmpty()) {
             updateDTO = ShopUpdateDTO.builder()
@@ -253,27 +286,26 @@ public class ShopServiceImpl implements ShopService {
                     .instagramUrl(updateDTO.getInstagramUrl())
                     .status(updateDTO.getStatus())
                     .thumbnailImageUrl(updateDTO.getThumbnailImageUrl())
-                    .imageIds(updateDTO.getImageIds())
+                    .imageUrls(updateDTO.getImageUrls())
                     .thumbnailImageId(updateDTO.getThumbnailImageId())
                     .build();
-        }
+        } // end if
 
         shop.updateShop(updateDTO);
-        Shop saveShop=shopRepository.save(shop);
+        Shop saveShop = shopRepository.save(shop);
 
-        ImageResponseDTO saveShopImage=shopImageService.updateShopImages(
+        ImageResponseDTO saveShopImage = shopImageService.updateShopImages(
                 shop,
-                updateDTO.getImageIds(),
+                imageIds,
                 files,
-                updateDTO.getThumbnailImageId(),
-                updateDTO.getThumbnailImageUrl()
+                oldThumbnailImageId,
+                newThumbnailOriginalFilename
         );
 
         String ThumbnailUrl = saveShopImage.getThumbnailUrl();
         if(ThumbnailUrl!=null){
             saveShop.updateThumbnailImageUrl(ThumbnailUrl);
             shopRepository.save(saveShop);
-
         }
 
     }

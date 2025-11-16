@@ -1,3 +1,5 @@
+server:
+  port: 5000
 #개발용 로그 레벨. 운영 시 변경 필요
 logging:
   level:

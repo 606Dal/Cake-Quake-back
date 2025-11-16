@@ -116,9 +116,20 @@ sequenceDiagram
 화면 없이 테스트를 진행해야 해서 다소 어려움도 있었지만, 프로젝트를 만들면서 RESTful API 설계와 검증 과정을 직접 경험할 수 있었고, REST에 한층 더 익숙해지는 계기가 되었습니다.
 
 ---
-### 추가 업데이트 (2025-09-10)
-- GitHub Actions 기반 CI/CD 구성으로 **백엔드 서버(OCI: Oracle Cloud Infrastructure) 자동 배포**
-- 맡은 기능들은 정상 작동 중입니다.  
-  (단, 결제(카카오페이·토스페이), 매장 이미지 경로 수정, 채팅 기능은 현재 제한됨)
+### 🔗 관련 링크, GitHub 레포지토리
 - 배포 도메인: https://cake-quake.vercel.app/  
   ※ 로그인 시 **서드파티 쿠키 허용**이 필요합니다.
+- Frontend Repository: https://github.com/606Dal/Cake-Quake-front
+
+
+- (참고) 팀 원본 Repository : https://github.com/orgs/Cake-Quake-Team/repositories
+---
+### 추가 업데이트 
+- 2025-09-10
+  - GitHub Actions 기반 CI/CD 구성으로 **백엔드 서버(OCI: Oracle Cloud Infrastructure) 자동 배포**
+  - (결제(카카오페이·토스페이), 채팅 기능은 현재 제한됨)
+
+
+- 2025-11-16
+  - 매장 정보 수정의 이미지 관련 기능 수정.
+  - 케이크와 매장 이미지 썸네일 생성 추가.

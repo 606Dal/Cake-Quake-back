@@ -75,7 +75,6 @@ public class MemberServiceImpl implements MemberService {
         소셜 가입은 로직 분리.
      */
     public ApiResponseDTO signup(BuyerSignupRequestDTO requestDTO) {
-//        log.debug("---------signup--------------");
 
         SocialType joinType = SocialType.from(requestDTO.getJoinType());
 
@@ -126,7 +125,6 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public SigninResponseDTO signupSocial(SocialSignupRequestDTO requestDTO) {
-//        log.debug("---------signupSocial--------------");
 
         SocialType joinType = SocialType.from(requestDTO.getJoinType());
         // basic 이면 안 됨
@@ -151,7 +149,6 @@ public class MemberServiceImpl implements MemberService {
             중복 검사 - userId, 전화번호
         */
         memberValidator.validateSocialSignupRequest(requestDTO);
-        log.debug("---memberValidator 통과---");
 
         String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
 
@@ -169,7 +166,6 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         Member savedMember = memberRepository.save(member);
-//        log.debug("소셜 회원가입 완료 - uid: {}, userId: {}", savedMember.getUid(), savedMember.getUserId());
         // 첫 온도 설정
         temperatureService.createInitialTemperature(savedMember);
 
@@ -236,45 +232,6 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
-//    @Override
-//    public RefreshTokenResponseDTO refreshTokens(String accessToken, RefreshTokenRequestDTO requestDTO) {
-//        log.debug("---MemberServiceImpl---refreshTokens()---");
-//        String refreshToken = requestDTO.getRefreshToken();
-//
-//        try {
-//            // 전달된 리프레시 토큰을 검증하고 페이로드(claims) 추출
-//            Claims claims = (Claims) jwtUtil.validateToken(refreshToken);
-//            // 토큰 내에서 필요한 사용자 정보 추출
-//            Long uid = claims.get("uid", Long.class);
-//            log.debug("---refreshTokens---uid: {}", uid);
-//            String userId = claims.get("userId", String.class);
-//            String uname = claims.get("uname", String.class);
-//            String role = claims.get("role", String.class);
-//            Long shopId = claims.get("shopId", Long.class);
-//            log.debug("userId: {}", userId);
-//
-//            // 토큰에 정보 추가
-//            Map<String, Object> tokenClaims = new HashMap<>();
-//            tokenClaims.put("uid", uid);
-//            tokenClaims.put("userId", userId);
-//            tokenClaims.put("uname", uname);
-//            tokenClaims.put("role", role);
-//
-//            // shopId가 있는 경우에만 추가
-//            if (shopId != null) {
-//                tokenClaims.put("shopId", shopId);
-//            }
-//
-//            // 추출한 사용자 정보로 새로운 액세스 토큰 생성 (유효기간: 5분)
-//            String newAccessToken = jwtUtil.createToken(tokenClaims, 5);
-//            // 새로운 리프레시 토큰 생성 (유효기간: 7일
-//            String newRefreshToken = jwtUtil.createToken(tokenClaims, 60 * 24 * 7);
-//
-//            return new RefreshTokenResponseDTO(newAccessToken, newRefreshToken);
-//        } catch (Exception e) {
-//            throw new JwtException(e.getMessage());
-//        }
-//    }
     /*
         25.07.02 리액트 쿠키에서 HTTPOnly 쿠키로 변경. 새로 생성한 CookieUtil 이용.
     */
@@ -294,15 +251,13 @@ public class MemberServiceImpl implements MemberService {
             String role = claims.get("role", String.class);
             Long shopId = claims.get("shopId", Long.class);
 
-//            log.debug("Refresh claims: uid={}, userId={}, role={}", uid, userId, role);
-
             // 토큰 정보 조립
             Map<String, Object> tokenClaims = new HashMap<>();
             tokenClaims.put("uid", uid);
             tokenClaims.put("userId", userId);
             tokenClaims.put("uname", uname);
             tokenClaims.put("role", role);
-            // shopId가 있는 경우에만 추가
+                // shopId가 있는 경우에만 추가
             if (shopId != null) tokenClaims.put("shopId", shopId);
 
             // 새로운 액세스 토큰 발급
@@ -325,6 +280,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public ApiResponseDTO changePassword(PasswordChangeDTO dto) {
+
         Member member = authenticatedUserService.getCurrentMember();
 
         // 현재 비밀번호 확인
@@ -344,5 +300,46 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
+/*
+    구 버전
+    @Override
+    public RefreshTokenResponseDTO refreshTokens(String accessToken, RefreshTokenRequestDTO requestDTO) {
+        log.debug("---MemberServiceImpl---refreshTokens()---");
+        String refreshToken = requestDTO.getRefreshToken();
 
+        try {
+            // 전달된 리프레시 토큰을 검증하고 페이로드(claims) 추출
+            Claims claims = (Claims) jwtUtil.validateToken(refreshToken);
+            // 토큰 내에서 필요한 사용자 정보 추출
+            Long uid = claims.get("uid", Long.class);
+            log.debug("---refreshTokens---uid: {}", uid);
+            String userId = claims.get("userId", String.class);
+            String uname = claims.get("uname", String.class);
+            String role = claims.get("role", String.class);
+            Long shopId = claims.get("shopId", Long.class);
+            log.debug("userId: {}", userId);
+
+            // 토큰에 정보 추가
+            Map<String, Object> tokenClaims = new HashMap<>();
+            tokenClaims.put("uid", uid);
+            tokenClaims.put("userId", userId);
+            tokenClaims.put("uname", uname);
+            tokenClaims.put("role", role);
+
+            // shopId가 있는 경우에만 추가
+            if (shopId != null) {
+                tokenClaims.put("shopId", shopId);
+            }
+
+            // 추출한 사용자 정보로 새로운 액세스 토큰 생성 (유효기간: 5분)
+            String newAccessToken = jwtUtil.createToken(tokenClaims, 5);
+            // 새로운 리프레시 토큰 생성 (유효기간: 7일
+            String newRefreshToken = jwtUtil.createToken(tokenClaims, 60 * 24 * 7);
+
+            return new RefreshTokenResponseDTO(newAccessToken, newRefreshToken);
+        } catch (Exception e) {
+            throw new JwtException(e.getMessage());
+        }
+    }
+*/
 }

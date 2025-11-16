@@ -2,6 +2,7 @@ package com.cakequake.cakequakeback.cake.item.service;
 
 import com.cakequake.cakequakeback.cake.item.entities.CakeCategory;
 import com.cakequake.cakequakeback.cake.item.dto.*;
+import com.cakequake.cakequakeback.cake.item.entities.CakeImage;
 import com.cakequake.cakequakeback.cake.item.entities.CakeItem;
 import com.cakequake.cakequakeback.cake.item.repo.CakeImageRepository;
 import com.cakequake.cakequakeback.cake.item.repo.CakeItemRepository;
@@ -47,6 +48,7 @@ public class CakeItemServiceImpl implements CakeItemService {
     private final MappingRepository mappingRepository;
     private final AuthenticatedUserService authenticatedUserService;
     private final ShopRepository shopRepository;
+    private final FileStorageService fileStorageService;
 
 
     // 현재 로그인한 사용자의 shopId를 가져오는 메서드
@@ -268,12 +270,16 @@ public class CakeItemServiceImpl implements CakeItemService {
         // 현재 로그인한 사용자가 해당 케이크의 shop 소유자인지 검증
         validateShopOwnership(cakeItem.getShop().getShopId());
 
-        cakeItem.changeIsDeleted(true);
+        // 이미지 URL 확보 후 삭제
+        List<CakeImage> images = cakeImageRepository.findByCakeItem(cakeItem);
+        images.forEach(img -> fileStorageService.deleteFile(img.getImageUrl()));
 
         // 연관 이미지 삭제
         cakeImageRepository.deleteByCakeItem(cakeItem);
 
         // 연관 옵션 매핑 삭제
         mappingRepository.deleteByCakeItem(cakeItem);
+
+        cakeItem.changeIsDeleted(true);
     }
 }

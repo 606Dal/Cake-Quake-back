@@ -31,7 +31,6 @@ public class PhoneVerificationController {
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponseDTO> verifyCode(@RequestBody @Valid PhoneVerificationCheckDTO checkDTO) {
-//        log.debug("--- verifyCode--- controller --- checkDTO.code: {}, phon:{}, type:{}", checkDTO.getCode(), checkDTO.getPhoneNumber(), checkDTO.getType());
 
         ApiResponseDTO response = service.verifyCode(checkDTO);
         return ResponseEntity.ok(response);

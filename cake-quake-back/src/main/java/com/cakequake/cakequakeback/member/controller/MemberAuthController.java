@@ -94,11 +94,6 @@ public class MemberAuthController {
                 .build());
     }
 
-//    @PostMapping("/signin")
-//    public ResponseEntity<SigninResponseDTO> signin(@RequestBody @Valid SigninRequestDTO dto) {
-//
-//        return ResponseEntity.ok(memberService.signin(dto));
-//    }
     @PostMapping("/signin")
     public ResponseEntity<Map<String, Object>> signin(@RequestBody SigninRequestDTO dto,
                                                       HttpServletResponse response) {
@@ -122,6 +117,7 @@ public class MemberAuthController {
     // 토큰에 필요한 유저 정보 담기. 프론트에서는 이 메서드를 호출해서 유저 정보를 획득.
     @GetMapping("/members/me")
     public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
+
         String token = CookieUtil.getCookieValue(request, "accessToken"); // 직접 추출
         Claims claims = (Claims) jwtUtil.validateToken(token);
 
@@ -136,18 +132,8 @@ public class MemberAuthController {
         return ResponseEntity.ok(userInfo);
     }
 
-//    @PostMapping("/refresh")
-//    public ResponseEntity<RefreshTokenResponseDTO> refresh(@RequestHeader("Authorization") String accessTokenStr,
-//                                                           @RequestBody RefreshTokenRequestDTO dto) {
-//        log.debug("---MemberAuthController---refresh()");
-//
-//        String accessToken = accessTokenStr.substring(7);
-//
-//        return ResponseEntity.ok(memberService.refreshTokens(accessToken, dto));
-//    }
     @PostMapping("refresh")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
-
         // 리프레시 요청 처리 (토큰 발급 및 쿠키 설정)
         Map<String, Object> userInfo = memberService.refreshTokens(request, response);
 
@@ -160,7 +146,7 @@ public class MemberAuthController {
                                                    HttpServletResponse response) {
 
         String accessToken = authorization.replace("Bearer ", "");
-        log.debug("---MemberAuthController---getKakao--- accessToken: {}", accessToken.substring(0, 7));
+//        log.debug("---MemberAuthController---getKakao--- accessToken: {}", accessToken.substring(0, 7));
 
         ApiResponseDTO dto = kakaoLoginService.processKakaoLogin(accessToken);
 
@@ -174,7 +160,6 @@ public class MemberAuthController {
             // 기존 유저인 경우 → 쿠키 저장
             String jwtAccessToken = signinDTO.getAccessToken();
             String jwtRefreshToken = signinDTO.getRefreshToken();
-            log.debug("---MemberAuthController---기존 유저 토큰 저장 확인--- jwtAccessToken: {}", jwtAccessToken);
             CookieUtil.addAuthCookies(response, jwtAccessToken, jwtRefreshToken);
 
             // 응답용 데이터 구성 (필요한 값만 선택)
@@ -198,7 +183,6 @@ public class MemberAuthController {
 
     @PostMapping("/signout")
     public ResponseEntity<Void> signout(HttpServletResponse response) {
-        log.debug("---MemberAuthController---signout()");
 
         CookieUtil.clearAuthCookies(response);
         return ResponseEntity.ok().build();
@@ -207,6 +191,7 @@ public class MemberAuthController {
     // 탈퇴 전 비밀번호 확인
     @PostMapping("/password/verify")
     public ApiResponseDTO verifyPassword(@RequestBody PasswordCheckDTO dto) {
+
         Member member = authenticatedUserService.getCurrentMember();
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {

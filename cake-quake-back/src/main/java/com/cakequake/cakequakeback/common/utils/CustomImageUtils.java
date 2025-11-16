@@ -63,7 +63,6 @@ public class CustomImageUtils {
     public String moveImageFile(String fileName, String fromDir, String toDir) {
         File sourceFile = new File(fromDir, fileName);
         File targetDir = new File(toDir);
-//        log.debug("fromDir: {}, toDir: {}", fromDir, toDir);
 
         if (!sourceFile.exists()) {
             throw new BusinessException(ErrorCode.NOT_FOUND_FILE, "이미지 파일을 찾을 수 없습니다: " + fileName);

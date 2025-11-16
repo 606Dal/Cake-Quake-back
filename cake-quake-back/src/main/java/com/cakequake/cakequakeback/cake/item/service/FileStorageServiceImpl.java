@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-//	String uploadDir = "C:\\nginx-1.26.3\\html\\upload";
+//	private String uploadDir = "C:\\nginx-1.26.3\\html\\uploads";
 
 	@Value("${file.upload.upload-dir}")
 	private String uploadDir;
@@ -29,7 +30,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 		if (extIndex > 0) {
 			fileExtension = originalFilename.substring(extIndex);
 		}
-		String newFileName = UUID.randomUUID().toString() + fileExtension;
+//		String newFileName = UUID.randomUUID().toString() + fileExtension;
+		String newFileName = UUID.randomUUID().toString() + "_" + originalFilename;
 
 		try {
 			Path targetLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -38,8 +40,15 @@ public class FileStorageServiceImpl implements FileStorageService {
 			Path filePath = targetLocation.resolve(newFileName);
 			file.transferTo(filePath.toFile());
 
+			// 썸네일 생성
+			File thumbnailFile = new File(targetLocation.toFile(), "s_" + newFileName);
+			net.coobird.thumbnailator.Thumbnails.of(filePath.toFile())
+					.size(200, 200)
+					.toFile(thumbnailFile);
+
 			// 저장 후 URL 경로 리턴 (로컬일 경우 그냥 파일명이나 URL 기본 경로 합쳐서 반환)
-			return "/uploads/" + newFileName;
+//			return "/uploads/" + newFileName;
+			return newFileName;
 
 		} catch (IOException e) {
 			throw new RuntimeException("파일 저장 실패: " + originalFilename, e);
@@ -54,6 +63,11 @@ public class FileStorageServiceImpl implements FileStorageService {
 			Path filePath = Paths.get(uploadDir).resolve(fileName).toAbsolutePath().normalize();
 
 			Files.deleteIfExists(filePath);
+
+			// 썸네일 삭제
+			String thumbnailName = "s_" + fileName;
+			Path thumbnailPath = Paths.get(uploadDir).resolve(thumbnailName).toAbsolutePath().normalize();
+			Files.deleteIfExists(thumbnailPath);
 
 		} catch (IOException e) {
 			throw new RuntimeException("파일 삭제 실패: " + fileUrl, e);
