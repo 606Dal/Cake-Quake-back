@@ -130,9 +130,11 @@ public class ShopImageServiceImpl implements ShopImageService {
 
         // 3. 새 이미지 파일 업로드 및 DB 저장
         if (newImageFiles != null && !newImageFiles.isEmpty()) {
+            log.debug("---[ShopImageService] 새 이미지 파일 업로드 및 DB 저장");
             for (MultipartFile file : newImageFiles) {
                 String originalFilename = file.getOriginalFilename();
                 String url = saveFileAndGetUrl(file); // 실제 파일 저장 및 URL 반환
+                log.debug("---[ShopImageService] 실제 파일 저장 및 URL 반환 = newFileName: {}", url);
                 saveNewFileUrl.put(originalFilename, url); // 원본 파일명 -> 저장된 URL 맵핑
 
                 ShopImage newShopImage = ShopImage.builder()
@@ -147,9 +149,9 @@ public class ShopImageServiceImpl implements ShopImageService {
                         .shopImageUrl(url)
                         .isThumbnail(false)
                         .build());
-//                log.debug("[ShopImageService] 새 이미지 저장 완료 (Original: {}, URL: {}, ID: {})", originalFilename, url, newShopImage.getShopImageId());
+                log.debug("[ShopImageService] 새 이미지 저장 완료 (Original: {}, URL: {}, ID: {})", originalFilename, url, newShopImage.getShopImageId());
             }
-//            log.debug("[ShopImageService] 새 이미지 파일 처리 완료. 총 {}개 저장.", savedShopImageDTOs.size());
+            log.debug("[ShopImageService] 새 이미지 파일 처리 완료. 총 {}개 저장.", savedShopImageDTOs.size());
         } else {
             log.debug("[ShopImageService] 새로 업로드될 파일이 없습니다.");
         }

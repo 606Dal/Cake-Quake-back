@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,11 +55,16 @@ public class FileStorageServiceImpl implements FileStorageService {
 		}
 
 		try {
-			log.debug("---FileStorageServiceImpl---storeFile---썸네일 생성");
+			log.debug("---FileStorageServiceImpl---storeFile---썸네일 생성 시작");
+
+			BufferedImage buf = ImageIO.read(new File(uploadDir, newFileName));
+			log.debug("[storeFile] 원본 이미지 해상도: {}x{}", buf.getWidth(), buf.getHeight());
+
 			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
 			Thumbnails.of(new File(uploadDir, newFileName))
 					.size(200, 200)
 					.toFile(thumbnailFile);
+			log.debug("[storeFile] 썸네일 생성 완료: {}", newFileName);
 
 		} catch (Exception e) {
 			log.error("썸네일 생성 실패: {}", newFileName, e);
