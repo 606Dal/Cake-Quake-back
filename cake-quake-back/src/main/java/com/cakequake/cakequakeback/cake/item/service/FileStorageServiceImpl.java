@@ -1,5 +1,7 @@
 package com.cakequake.cakequakeback.cake.item.service;
 
+import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
 //	private String uploadDir = "C:\\nginx-1.26.3\\html\\uploads";
@@ -40,19 +43,21 @@ public class FileStorageServiceImpl implements FileStorageService {
 			Path filePath = targetLocation.resolve(newFileName);
 			file.transferTo(filePath.toFile());
 
-			// 썸네일 생성
-			File thumbnailFile = new File(targetLocation.toFile(), "s_" + newFileName);
-			net.coobird.thumbnailator.Thumbnails.of(filePath.toFile())
-					.size(200, 200)
-					.toFile(thumbnailFile);
-
-			// 저장 후 URL 경로 리턴 (로컬일 경우 그냥 파일명이나 URL 기본 경로 합쳐서 반환)
-//			return "/uploads/" + newFileName;
-			return newFileName;
-
 		} catch (IOException e) {
 			throw new RuntimeException("파일 저장 실패: " + originalFilename, e);
 		}
+
+		try {
+			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
+			Thumbnails.of(new File(uploadDir, newFileName))
+					.size(200, 200)
+					.toFile(thumbnailFile);
+
+		} catch (Exception e) {
+			log.error("썸네일 생성 실패: {}", newFileName, e);
+		}
+
+		return newFileName;
 	}
 
 	@Override
