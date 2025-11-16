@@ -18,6 +18,26 @@ public interface CakeItemRepository extends JpaRepository<CakeItem, Long> {
             " AND (:category IS NULL OR c.category = :category)")
     Page<CakeListDTO> findAllCakeList(@Param("category") CakeCategory category, Pageable pageable);
 
+    // 카테고리나 키워드 없이 삭제 처리되지 않은 전체 케이크 목록
+    @Query("""
+            SELECT new com.cakequake.cakequakeback.cake.item.dto.CakeListDTO(
+                c.shop.shopId, c.cakeId, c.cname, c.price, c.thumbnailImageUrl,
+                c.isOnsale, c.orderCount, c.viewCount)
+            FROM CakeItem c
+            WHERE c.isDeleted = false
+            """)
+    Page<CakeListDTO> findAllNotDeleted(Pageable pageable);
+
+    // 키워드로 필터링된 삭제 처리되지 않은 케이크 목록
+    @Query("""
+            SELECT new com.cakequake.cakequakeback.cake.item.dto.CakeListDTO(
+                c.shop.shopId, c.cakeId, c.cname, c.price, c.thumbnailImageUrl,
+                c.isOnsale, c.orderCount, c.viewCount)
+            FROM CakeItem c
+            WHERE c.isDeleted = false
+                AND (:keyword IS NULL OR c.cname LIKE %:keyword%)
+    """)
+    Page<CakeListDTO> findAllByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     // 특정 매장의 상품 목록 조회
     @Query("SELECT new com.cakequake.cakequakeback.cake.item.dto.CakeListDTO(c.shop.shopId, c.cakeId, c.cname, c.price, c.thumbnailImageUrl, c.isOnsale, c.orderCount, c.viewCount) " +

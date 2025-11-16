@@ -146,30 +146,11 @@ public class CakeItemServiceImpl implements CakeItemService {
             listpage = cakeItemRepository.findAllCakeList(category, pageable);
         } else if (pageRequestDTO.getKeyword() != null && !pageRequestDTO.getKeyword().isEmpty()) {
             // 키워드 검색이 있다면 키워드로 필터링된 케이크 목록을 정렬하여 조회
-            listpage = cakeItemRepository.findAll(pageable)
-                    .map(cakeItem -> CakeListDTO.builder()
-                            .cakeId(cakeItem.getCakeId())
-                            .cname(cakeItem.getCname())
-                            .price(cakeItem.getPrice())
-                            .thumbnailImageUrl(cakeItem.getThumbnailImageUrl())
-                            .isOnsale(cakeItem.getIsOnsale())
-                            .viewCount(cakeItem.getViewCount())
-                            .orderCount(cakeItem.getOrderCount())
-                            .build());
+            listpage = cakeItemRepository.findAllByKeyword(pageRequestDTO.getKeyword(), pageable);
         }
         else {
             // 카테고리나 키워드 없이 전체 케이크 목록을 정렬하여 조회
-            listpage = cakeItemRepository.findAll(pageable)
-                    .map(cakeItem -> CakeListDTO.builder()
-                            .cakeId(cakeItem.getCakeId())
-                            .cname(cakeItem.getCname())
-                            .price(cakeItem.getPrice())
-                            .thumbnailImageUrl(cakeItem.getThumbnailImageUrl())
-                            .isOnsale(cakeItem.getIsOnsale())
-                            .viewCount(cakeItem.getViewCount())
-                            .orderCount(cakeItem.getOrderCount())
-                            .shopId(cakeItem.getShop().getShopId())
-                            .build());
+            listpage = cakeItemRepository.findAllNotDeleted(pageable);
         }
 
 
