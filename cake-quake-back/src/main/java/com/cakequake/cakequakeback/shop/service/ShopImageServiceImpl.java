@@ -85,10 +85,10 @@ public class ShopImageServiceImpl implements ShopImageService {
 
 
 		log.debug("DEBUG: [ShopImageService] updateShopImages 메서드 시작. shopId: {}", shop.getShopId());
-		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): {}", imageUrls != null ? imageUrls.toString() : "null");
-		log.debug("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): {}", newImageFiles != null ? newImageFiles.size() : 0);
-		log.debug("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): {}", thumbnailFileId);
-		log.debug("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): {}", thumbnailUrl);
+//		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): {}", imageUrls != null ? imageUrls.toString() : "null");
+//		log.debug("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): {}", newImageFiles != null ? newImageFiles.size() : 0);
+//		log.debug("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): {}", thumbnailFileId);
+//		log.debug("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): {}", thumbnailUrl);
 
         List<ShopImage> shopImages = shopImageRepository.findByShop(shop);
 //		log.debug("DEBUG: [ShopImageService] 현재 샵의 기존 이미지 수: {}", shopImages.size());

@@ -51,19 +51,19 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public ShopDetailResponseDTO getShopDetail(Long shopId) {
 
-        log.info("매장 상세 정보 조회 시작. shopId: {}", shopId);
+        log.debug("매장 상세 정보 조회 시작. shopId: {}", shopId);
         // 1. 매장 및 이미지 정보 조회
         Shop shop=shopValidator.validateShop(shopId);
-        log.info("✅ 매장 기본 정보 조회 완료 | shopName: {}, rating: {}, reviewCount: {}",
-                shop.getShopName(), shop.getRating(), shop.getReviewCount());
+//        log.info("✅ 매장 기본 정보 조회 완료 | shopName: {}, rating: {}, reviewCount: {}",
+//                shop.getShopName(), shop.getRating(), shop.getReviewCount());
 
         //매장 이미지 정보 조회
         List<ShopImageDTO> images  = shopImageRepository.findShopImages(shopId);
-        log.info("🖼️ 매장 이미지 {}개 조회 완료", images.size());
+//        log.info("🖼️ 매장 이미지 {}개 조회 완료", images.size());
         images.forEach(img -> log.info("   - imageUrl: {}", img.getShopImageUrl()));
 
         String thumbnailUrl=images.isEmpty()?null:images.get(0).getShopImageUrl();
-        log.info("썸네일 URL 설정 완료: {}", thumbnailUrl);
+//        log.info("썸네일 URL 설정 완료: {}", thumbnailUrl);
 
         // 2. 공지사항 미리보기 생성 (기존 로직 유지)
         Optional<ShopNotice> optionalNotice = shopNoticeRepository
@@ -82,20 +82,20 @@ public class ShopServiceImpl implements ShopService {
                     notice.getModDate()
             );
         }).orElse(null); //공지사항이 없는 경우 null 반환
-        log.info("📢 공지사항 미리보기 생성 완료 | 존재 여부: {}", previewDTO != null);
+//        log.info("📢 공지사항 미리보기 생성 완료 | 존재 여부: {}", previewDTO != null);
         if (previewDTO != null) {
-            log.info("   - title: {}, preview: {}", previewDTO.getTitle(), previewDTO.getPreviewContent());
+//            log.info("   - title: {}, preview: {}", previewDTO.getTitle(), previewDTO.getPreviewContent());
         }
 
         // 3. 케이크 목록 조회 (기존 로직 유지)
         PageRequestDTO pageRequestDTO = new PageRequestDTO();
         InfiniteScrollResponseDTO<CakeListDTO> cakes =
                 cakeItemService.getShopCakeList(shopId, pageRequestDTO, null);
-        log.info("매장 케이크 목록 {}개 조회 완료.", cakes.getContent().size());
-        cakes.getContent().forEach(cake ->
-                log.info("   - cakeId: {}, name: {}, price: {}, isOnsale: {}, thumbnail: {}",
-                        cake.getCakeId(), cake.getCname(), cake.getPrice(), cake.getIsOnsale(), cake.getThumbnailImageUrl())
-        );
+//        log.info("매장 케이크 목록 {}개 조회 완료.", cakes.getContent().size());
+//        cakes.getContent().forEach(cake ->
+//                log.info("   - cakeId: {}, name: {}, price: {}, isOnsale: {}, thumbnail: {}",
+//                        cake.getCakeId(), cake.getCname(), cake.getPrice(), cake.getIsOnsale(), cake.getThumbnailImageUrl())
+//        );
 
         // 모든 정보를 최종 DTO에 빌드하여 반환
         ShopDetailResponseDTO responseDTO= ShopDetailResponseDTO.builder()
@@ -124,9 +124,9 @@ public class ShopServiceImpl implements ShopService {
                 .cakes(cakes.getContent())
                 .build(); // 최종적으로 build() 호출
 
-        log.info("✅ ShopDetailResponseDTO 생성 완료 | shopId: {}, shopName: {}, 케이크 수: {}, 이미지 수: {}",
-                responseDTO.getShopId(), responseDTO.getShopName(),
-                responseDTO.getCakes().size(), responseDTO.getImages().size());
+//        log.info("✅ ShopDetailResponseDTO 생성 완료 | shopId: {}, shopName: {}, 케이크 수: {}, 이미지 수: {}",
+//                responseDTO.getShopId(), responseDTO.getShopName(),
+//                responseDTO.getCakes().size(), responseDTO.getImages().size());
             return responseDTO;
     }
 
@@ -169,9 +169,9 @@ public class ShopServiceImpl implements ShopService {
             resultPage = shopRepository.findAll(status, pageable);
         }
 
-        log.info(">>> [getShops] 조회된 매장 수: " + resultPage.getContent().size());
-        log.info(">>> [getShops] hasNext: " + resultPage.hasNext());
-        log.info(">>> [getShops] totalElements: " + resultPage.getTotalElements());
+//        log.info(">>> [getShops] 조회된 매장 수: " + resultPage.getContent().size());
+//        log.info(">>> [getShops] hasNext: " + resultPage.hasNext());
+//        log.info(">>> [getShops] totalElements: " + resultPage.getTotalElements());
 
         return InfiniteScrollResponseDTO.<ShopPreviewDTO>builder()
                 .content(resultPage.getContent())

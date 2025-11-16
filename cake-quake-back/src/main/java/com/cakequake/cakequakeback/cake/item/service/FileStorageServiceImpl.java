@@ -36,13 +36,16 @@ public class FileStorageServiceImpl implements FileStorageService {
 		}
 //		String newFileName = UUID.randomUUID().toString() + fileExtension;
 		String newFileName = UUID.randomUUID().toString() + "_" + originalFilename;
+		log.debug("---storeFile---newFileName: {}", newFileName);
 
 		try {
 			log.debug("---FileStorageServiceImpl---storeFile---파일 생성");
 			Path targetLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
 			Files.createDirectories(targetLocation);
+			log.debug("---storeFile---targetLocation: {}", targetLocation);
 
 			Path filePath = targetLocation.resolve(newFileName);
+			log.debug("---storeFile---filePath: {}", filePath.toFile());
 			file.transferTo(filePath.toFile());
 
 		} catch (IOException e) {
