@@ -85,10 +85,10 @@ public class ShopImageServiceImpl implements ShopImageService {
 
 
 		log.debug("DEBUG: [ShopImageService] updateShopImages 메서드 시작. shopId: {}", shop.getShopId());
-//		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): {}", imageUrls != null ? imageUrls.toString() : "null");
-//		log.debug("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): {}", newImageFiles != null ? newImageFiles.size() : 0);
-//		log.debug("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): {}", thumbnailFileId);
-//		log.debug("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): {}", thumbnailUrl);
+		log.debug("DEBUG: [ShopImageService] 유지할 이미지 ID 목록 (imageUrls): {}", imageUrls != null ? imageUrls.toString() : "null");
+		log.debug("DEBUG: [ShopImageService] 새로 업로드될 파일 수 (newImageFiles): {}", newImageFiles != null ? newImageFiles.size() : 0);
+		log.debug("DEBUG: [ShopImageService] 썸네일 지정 ID (thumbnailFileId): {}", thumbnailFileId);
+		log.debug("DEBUG: [ShopImageService] DTO에서 넘어온 썸네일 URL/이름 (thumbnailUrlFromDTO): {}", thumbnailUrl);
 
         List<ShopImage> shopImages = shopImageRepository.findByShop(shop);
 //		log.debug("DEBUG: [ShopImageService] 현재 샵의 기존 이미지 수: {}", shopImages.size());
@@ -107,7 +107,7 @@ public class ShopImageServiceImpl implements ShopImageService {
         for (ShopImage img : imagesToDelete) {
             fileStorageService.deleteFile(img.getShopImageUrl()); // 물리 파일 삭제
             shopImageRepository.delete(img); // DB에서 이미지 레코드 삭제
-//            log.debug("[ShopImageService] 이미지 삭제 완료 (ID: {})", img.getShopImageId());
+            log.debug("[ShopImageService] 이미지 삭제 완료 (ID: {})", img.getShopImageId());
         }
 
 
@@ -130,7 +130,6 @@ public class ShopImageServiceImpl implements ShopImageService {
 
         // 3. 새 이미지 파일 업로드 및 DB 저장
         if (newImageFiles != null && !newImageFiles.isEmpty()) {
-//            System.out.println("DEBUG: [ShopImageService] 새 이미지 파일 처리 시작...");
             for (MultipartFile file : newImageFiles) {
                 String originalFilename = file.getOriginalFilename();
                 String url = saveFileAndGetUrl(file); // 실제 파일 저장 및 URL 반환

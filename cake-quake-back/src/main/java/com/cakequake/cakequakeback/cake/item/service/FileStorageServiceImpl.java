@@ -25,6 +25,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
 	@Override
 	public String storeFile(MultipartFile file) {
+		log.debug("---FileStorageServiceImpl---storeFile");
 		// 원본 파일명 정리
 		String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
 		// 확장자 포함 랜덤 UUID 파일명 생성
@@ -37,6 +38,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 		String newFileName = UUID.randomUUID().toString() + "_" + originalFilename;
 
 		try {
+			log.debug("---FileStorageServiceImpl---storeFile---파일 생성");
 			Path targetLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
 			Files.createDirectories(targetLocation);
 
@@ -48,6 +50,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 		}
 
 		try {
+			log.debug("---FileStorageServiceImpl---storeFile---썸네일 생성");
 			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
 			Thumbnails.of(new File(uploadDir, newFileName))
 					.size(200, 200)
@@ -63,6 +66,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 	@Override
 	public void deleteFile(String fileUrl) {
 		try {
+			log.debug("---FileStorageServiceImpl====deleteFile");
 			// fileUrl 에서 파일명만 추출 (예: "/uploads/abc.jpg" -> "abc.jpg")
 			String fileName = Paths.get(fileUrl).getFileName().toString();
 			Path filePath = Paths.get(uploadDir).resolve(fileName).toAbsolutePath().normalize();

@@ -9,5 +9,7 @@ logging:
         SQL: DEBUG
       springframework:
         web: DEBUG
+    com.cakequake.cakequakeback.shop: DEBUG
+    com.cakequake.cakequakeback.cake: DEBUG
   file:
     encoding: UTF-8
