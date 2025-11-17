@@ -1,5 +1,7 @@
 package com.cakequake.cakequakeback.cake.item.service;
 
+import com.cakequake.cakequakeback.common.exception.BusinessException;
+import com.cakequake.cakequakeback.common.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,43 +33,53 @@ public class FileStorageServiceImpl implements FileStorageService {
 		// 원본 파일명 정리
 		String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
 		// 확장자 포함 랜덤 UUID 파일명 생성
-		String fileExtension = "";
-		int extIndex = originalFilename.lastIndexOf(".");
-		if (extIndex > 0) {
-			fileExtension = originalFilename.substring(extIndex);
-		}
-//		String newFileName = UUID.randomUUID().toString() + fileExtension;
 		String newFileName = UUID.randomUUID().toString() + "_" + originalFilename;
-		log.debug("---storeFile---newFileName: {}", newFileName);
+
+		Path targetLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
+		Path filePath = targetLocation.resolve(newFileName);
 
 		try {
-			log.debug("---FileStorageServiceImpl---storeFile---파일 생성");
-			Path targetLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
 			Files.createDirectories(targetLocation);
-			log.debug("---storeFile---targetLocation: {}", targetLocation);
 
-			Path filePath = targetLocation.resolve(newFileName);
-			log.debug("---storeFile---filePath: {}", filePath.toFile());
-			file.transferTo(filePath.toFile());
+			String contentType = file.getContentType();
+			if (contentType == null || !contentType.startsWith("image")) {
+				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+			}
+
+			BufferedImage originalImage = ImageIO.read(file.getInputStream());
+			if (originalImage == null) {
+				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+			}
+
+			int width = originalImage.getWidth();
+			int height = originalImage.getHeight();
+
+
+			// 리사이즈 필요 없는 경우 → 원본 그대로 저장
+			if (width <= 4000 && height <= 4000) {
+				file.transferTo(filePath.toFile());
+			} else {
+				log.warn("\"이미지 해상도가 너무 높아 리사이징 처리합니다.");
+
+				// 리사이징된 이미지를 파일로 저장
+				BufferedImage resized = Thumbnails.of(originalImage)
+						.size(2000, 2000)
+						.outputQuality(0.9)
+						.asBufferedImage();
+
+				ImageIO.write(resized, "jpg", filePath.toFile());
+			} // if~else
+
+			// 썸네일 생성
+			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
+
+			Thumbnails.of(filePath.toFile())
+					.size(200, 200)
+					.outputQuality(0.9)
+					.toFile(thumbnailFile);
 
 		} catch (IOException e) {
 			throw new RuntimeException("파일 저장 실패: " + originalFilename, e);
-		}
-
-		try {
-			log.debug("---FileStorageServiceImpl---storeFile---썸네일 생성 시작");
-
-			BufferedImage buf = ImageIO.read(new File(uploadDir, newFileName));
-			log.debug("[storeFile] 원본 이미지 해상도: {}x{}", buf.getWidth(), buf.getHeight());
-
-			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
-			Thumbnails.of(new File(uploadDir, newFileName))
-					.size(200, 200)
-					.toFile(thumbnailFile);
-			log.debug("[storeFile] 썸네일 생성 완료: {}", newFileName);
-
-		} catch (Exception e) {
-			log.error("썸네일 생성 실패: {}", newFileName, e);
 		}
 
 		return newFileName;
