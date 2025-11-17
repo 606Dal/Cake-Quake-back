@@ -194,7 +194,7 @@ public class ShopImageServiceImpl implements ShopImageService {
                             return null;
                         });
             } else {
-                log.debug("[ShopImageService] DTO의 thumbnailUrlFromDTO({})에 해당하는 저장된 파일 URL을 찾을 수 없습니다. 아마도 새로 업로드된 파일이 아니거나 원본 이름이 일치하지 않습니다.", thumbnailUrl);
+                log.debug("[ShopImageService] DTO의 thumbnailUrlFromDTO()에 해당하는 저장된 파일 URL을 찾을 수 없습니다. 아마도 새로 업로드된 파일이 아니거나 원본 이름이 일치하지 않습니다.");
             }
         }
         // C. 썸네일이 명시적으로 지정되지 않았고, '새로 업로드된 파일'이 있다면 첫 번째 파일을 썸네일로 자동 지정
