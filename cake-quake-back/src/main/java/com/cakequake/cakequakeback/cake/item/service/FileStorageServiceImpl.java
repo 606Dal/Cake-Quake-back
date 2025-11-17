@@ -51,27 +51,11 @@ public class FileStorageServiceImpl implements FileStorageService {
 				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
 			}
 
-			int width = originalImage.getWidth();
-			int height = originalImage.getHeight();
-
-
-			// 리사이즈 필요 없는 경우 → 원본 그대로 저장
-			if (width <= 4000 && height <= 4000) {
-				file.transferTo(filePath.toFile());
-			} else {
-				log.warn("\"이미지 해상도가 너무 높아 리사이징 처리합니다.");
-
-				// 리사이징된 이미지를 파일로 저장
-				BufferedImage resized = Thumbnails.of(originalImage)
-						.size(2000, 2000)
-						.outputQuality(0.9)
-						.asBufferedImage();
-
-				ImageIO.write(resized, "jpg", filePath.toFile());
-			} // if~else
+			file.transferTo(filePath.toFile());
 
 			// 썸네일 생성
 			File thumbnailFile = new File(uploadDir, "s_" + newFileName);
+			log.debug("---storeFile---썸네일 생성 시작");
 
 			Thumbnails.of(filePath.toFile())
 					.size(200, 200)
