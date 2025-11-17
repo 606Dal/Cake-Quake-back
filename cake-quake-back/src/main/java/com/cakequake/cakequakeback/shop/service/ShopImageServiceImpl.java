@@ -221,7 +221,7 @@ public class ShopImageServiceImpl implements ShopImageService {
         // (여기서는 ShopImage 엔티티의 isThumbnail 플래그를 변경하지 않고, 단순히 Shop 엔티티의 thumbnailImageUrl을 가져와 반환합니다.)
         if (finalThumbnailUrl == null && shop.getThumbnailImageUrl() != null) {
             finalThumbnailUrl = shop.getThumbnailImageUrl();
-            log.debug("[ShopImageService] 명시된 썸네일 없음. 기존 샵의 썸네일 URL을 유지합니다: {}", finalThumbnailUrl);
+            log.debug("[ShopImageService] 명시된 썸네일 없음. 기존 샵의 썸네일 URL을 유지합니다");
         } else if (finalThumbnailUrl == null) {
             log.debug("[ShopImageService] 최종적으로 설정된 썸네일 URL이 없습니다. 썸네일이 null로 반환됩니다.");
         }

@@ -50,6 +50,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 			if (originalImage == null) {
 				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
 			}
+			log.debug("---storeFile--- 이미지 해상도: {}x{}", originalImage.getWidth(), originalImage.getHeight());
 
 			file.transferTo(filePath.toFile());
 
