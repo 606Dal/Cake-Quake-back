@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
-
 public class ShopUpdateDTO {
 
     private String address; //not null
@@ -28,11 +27,10 @@ public class ShopUpdateDTO {
     private String instagramUrl;
     private ShopStatus status;
     private String thumbnailImageUrl;
-//    private List<Long> imageIds;
 
     // 프론트 구조에 맞게 변경
     @JsonProperty("imageUrls")
-    private List<ShopImageDTO> imageUrls;
+    private List<ShopImageUpdateDTO> imageUrls;
 
     private Long thumbnailImageId;
 

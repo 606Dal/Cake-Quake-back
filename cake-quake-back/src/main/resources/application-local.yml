@@ -8,6 +8,7 @@ logging:
     com.cakequake.cakequakeback.member: DEBUG
     com.cakequake.cakequakeback.security: DEBUG
     com.cakequake.cakequakeback.chatting : DEBUG
-    org.springframework.security: TRACE
+    com.cakequake.cakequakeback.shop : DEBUG
+    org.springframework.security: DEBUG
   file:
     encoding: UTF-8

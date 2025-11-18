@@ -242,37 +242,6 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = shopValidator.validateShop(shopId);
         shopValidator.validateUpdateShop(updateDTO);
 
-        // 유지할 기존 이미지 ID 목록
-        List<Long> imageIds = null;
-        if (updateDTO.getImageUrls() != null) {
-            imageIds = updateDTO.getImageUrls().stream()
-                    .map(ShopImageDTO::getShopImageId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        }
-
-        // 기존 이미지의 썸네일 ID
-        Long oldThumbnailImageId = null;
-        if (updateDTO.getImageUrls() != null) {
-            oldThumbnailImageId = updateDTO.getImageUrls().stream()
-                    .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
-                    .map(ShopImageDTO::getShopImageId)   // 기존 이미지만 필터
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // '새 이미지'의 썸네일 (ID 없음 → originalFilename으로 처리)
-        String newThumbnailOriginalFilename = null;
-        if (updateDTO.getImageUrls() != null) {
-            newThumbnailOriginalFilename = updateDTO.getImageUrls().stream()
-                    .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
-                    .filter(img -> img.getShopImageId() == null)     // 새 이미지
-                    .map(ShopImageDTO::getShopImageUrl)   // originalFilename
-                    .findFirst()
-                    .orElse(null);
-        }
-
         // 주소가 있으면 좌표 변환 후, 새 DTO 복사본 생성
         if (updateDTO.getAddress() != null && !updateDTO.getAddress().isEmpty()) {
             updateDTO = ShopUpdateDTO.builder()
@@ -296,10 +265,8 @@ public class ShopServiceImpl implements ShopService {
 
         ImageResponseDTO saveShopImage = shopImageService.updateShopImages(
                 shop,
-                imageIds,
                 files,
-                oldThumbnailImageId,
-                newThumbnailOriginalFilename
+                updateDTO.getImageUrls()
         );
 
         String ThumbnailUrl = saveShopImage.getThumbnailUrl();
