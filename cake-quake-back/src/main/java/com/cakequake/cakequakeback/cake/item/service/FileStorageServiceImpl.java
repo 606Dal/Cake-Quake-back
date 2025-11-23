@@ -22,8 +22,6 @@ import java.util.UUID;
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
-//	private String uploadDir = "C:\\nginx-1.26.3\\html\\uploads";
-
 	@Value("${file.upload.upload-dir}")
 	private String uploadDir;
 

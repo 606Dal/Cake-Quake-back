@@ -42,6 +42,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
 
     @Value("${file.upload.review-dir}")
     private String reviewDir;
+
 //    private static final String UPLOAD_DIR = "C:/nginx-1.26.3/html/reviewuploads";
 //    private final AmazonS3 amazonS3;
 //    private final String bucketName = "elasticbeanstalk-ap-northeast-2-853972008946";
@@ -79,7 +80,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
         }
 
         String pictureUrl = (savedName != null)
-                ? "/reviewuploads/" + savedName
+                ? savedName
                 : null;
 
     /*
@@ -186,7 +187,7 @@ public class BuyerReviewServiceImpl implements BuyerReviewService {
         MultipartFile file = dto.getReviewPictureUrl();
         if (file != null && !file.isEmpty()) {
             String savedName = imageUtils.saveImageFile(file, reviewDir);
-            review.updateReviewPictureUrl("/reviewuploads/" + savedName);
+            review.updateReviewPictureUrl(savedName);
         }
     /*
         배포용

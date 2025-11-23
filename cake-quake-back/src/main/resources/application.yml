@@ -75,12 +75,6 @@ procurement:
   cutoff-hour: 11    # 컷오프 시각 (시(hour) 단위)
   transit-days: 1    # 배송 소요일수 (연속일)
 
-file:
-  upload:
-    base-dir: /var/www/images
-    upload-dir: ${file.upload.base-dir}/uploads
-    pending-seller-dir: ${file.upload.base-dir}/pendingSellerUploads
-    review-dir: ${file.upload.base-dir}/reviewuploads
 
 ---
 

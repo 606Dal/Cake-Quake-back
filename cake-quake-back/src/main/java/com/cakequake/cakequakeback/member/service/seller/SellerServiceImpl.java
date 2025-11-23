@@ -1,6 +1,5 @@
 package com.cakequake.cakequakeback.member.service.seller;
 
-import com.cakequake.cakequakeback.cake.item.service.FileStorageService;
 import com.cakequake.cakequakeback.common.exception.BusinessException;
 import com.cakequake.cakequakeback.common.exception.ErrorCode;
 import com.cakequake.cakequakeback.common.utils.CustomImageUtils;
@@ -48,9 +47,6 @@ public class SellerServiceImpl implements SellerService{
         this.shopRepository = shopRepository;
         this.authenticatedUserService = authenticatedUserService;
     }
-
-    // 로컬 테스트용
-//    private String pendingSellerDir = "C:\\nginx-1.26.3\\html\\pendingSellerUploads";
 
     @Value("${file.upload.pending-seller-dir}")
     private String pendingSellerDir;
@@ -154,7 +150,7 @@ public class SellerServiceImpl implements SellerService{
 
         return ApiResponseDTO.builder()
                 .success(true)
-                .message("판매자 승인 요청이 접수되었습니다. 관리자의 승인을 기다려주세요.")
+                .message("판매자 승인 요청이 접수되었습니다.\\n 관리자의 승인을 기다려주세요.")
                 .build();
     }
 

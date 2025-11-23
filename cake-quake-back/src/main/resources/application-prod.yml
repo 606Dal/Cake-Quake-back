@@ -9,7 +9,14 @@ logging:
         SQL: DEBUG
       springframework:
         web: DEBUG
-    com.cakequake.cakequakeback.shop: DEBUG
-    com.cakequake.cakequakeback.cake: DEBUG
+#    com.cakequake.cakequakeback.shop: DEBUG
+#    com.cakequake.cakequakeback.cake: DEBUG
   file:
     encoding: UTF-8
+
+file:
+  upload:
+    base-dir: /var/www/images
+    upload-dir: ${file.upload.base-dir}/uploads
+    pending-seller-dir: ${file.upload.base-dir}/pendingSellerUploads
+    review-dir: ${file.upload.base-dir}/reviewuploads

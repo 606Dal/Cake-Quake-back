@@ -12,3 +12,10 @@ logging:
     org.springframework.security: DEBUG
   file:
     encoding: UTF-8
+
+file:
+  upload:
+    base-dir: C:/nginx-1.26.3/html
+    upload-dir: ${file.upload.base-dir}/uploads
+    pending-seller-dir: ${file.upload.base-dir}/pendingSellerUploads
+    review-dir: ${file.upload.base-dir}/reviewuploadreviewuploadsreviewuploads
