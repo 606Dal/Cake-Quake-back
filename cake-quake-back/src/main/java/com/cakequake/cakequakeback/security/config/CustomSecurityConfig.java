@@ -67,10 +67,7 @@ public class CustomSecurityConfig {
         http.userDetailsService(customUserDetailsService);
 
         http.formLogin(config -> config.disable() );
-
-        // 소셜 로그인 만들기 전까지 무시
         http.oauth2Login( oauth2 -> oauth2.disable());
-
         http.csrf(csrf -> csrf.disable() );
 
         http.cors(cors ->
@@ -103,9 +100,10 @@ public class CustomSecurityConfig {
         corsConfiguration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "https://cake-quake.vercel.app"
+                "https://cake-quake.vercel.app",
+                "https://frontend.api-cakequake.shop"
                 )
-        ); // 배포 후 변경
+        );
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);

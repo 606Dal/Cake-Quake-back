@@ -41,12 +41,10 @@ public class KakaoLoginService {
 
         // 이미 가입한 카카오 유저인지 확인
         Optional<Member> optionalMember = memberRepository.findByUserId(email);
-//        log.debug("---processKakaoLogin---optionalMember: {}", optionalMember);
 
         if (optionalMember.isPresent()) {
             // 기존 유저 - 로그인 처리
             Member member = optionalMember.get();
-//            log.debug("---processKakaoLogin---member: {}", member);
 
             // 유저 상태 체크
             if (member.getStatus() != MemberStatus.ACTIVE) {

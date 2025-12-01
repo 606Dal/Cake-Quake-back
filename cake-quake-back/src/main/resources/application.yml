@@ -65,8 +65,8 @@ spring:
       secret-key: ${TOSS_SECRET_KEY}   # 환경 변수에서 읽어오는 토스페이 Secret Key
 
   app:
-    base-url: https://cake-quake.vercel.app/api/v1  # 우리 서비스(앱) 기본 URL, ngrok 혹은 실제 도메인
-    front-url: https://cake-quake.vercel.app
+    base-url: https://api-cakequake.shop/api/v1  # 우리 서비스(앱) 기본 URL, ngrok 혹은 실제 도메인
+    front-url: https://frontend.api-cakequake.shop
 
 jwt:
   secret: ${JWT_SECRET}

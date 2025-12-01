@@ -150,7 +150,7 @@ public class SellerServiceImpl implements SellerService{
 
         return ApiResponseDTO.builder()
                 .success(true)
-                .message("판매자 승인 요청이 접수되었습니다.\\n 관리자의 승인을 기다려주세요.")
+                .message("판매자 승인 요청이 접수되었습니다. 관리자의 승인을 기다려주세요.")
                 .build();
     }
 
