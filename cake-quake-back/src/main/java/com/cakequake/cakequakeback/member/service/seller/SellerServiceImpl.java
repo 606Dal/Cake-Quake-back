@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @Transactional
 @Slf4j
@@ -64,10 +67,13 @@ public class SellerServiceImpl implements SellerService{
         */
         memberValidator.validateSellerSignup(requestDTO);
 
-        // 승인 대기 테이블에서 전화번호 중복 검사
-        if (pendingSellerRequestRepository.existsByPhoneNumber(requestDTO.getPhoneNumber())) {
-            throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
-        }
+        String phoneNumber = requestDTO.getPhoneNumber();
+
+        /*
+            승인 대기 테이블에서 휴대폰 중복 검사.
+            회원 가입 1단계만 진행하고 멈췄을 때: 폰 번호가 이미 있고, 2단계 정보가 null이면 폰 번호 중복 검사 안 함.
+         */
+        Long tempSellerId = checkPendingSellerProgress(phoneNumber);
 
         // basic 가입일 때만 비밀번호 인코딩
         String encodedPassword = null;
@@ -80,20 +86,39 @@ public class SellerServiceImpl implements SellerService{
         // 파일 처리 - 사업자 등록증 파일
         String savedName = customImageUtils.saveImageFile(file, pendingSellerDir);
 
-        PendingSellerRequest pendingSeller = PendingSellerRequest.builder()
-                .userId(requestDTO.getUserId())
-                .uname(requestDTO.getUname())
-                .password(encodedPassword)
-                .phoneNumber(requestDTO.getPhoneNumber())
-                .businessNumber(requestDTO.getBusinessNumber())
-                .bossName(requestDTO.getBossName())
-                .openingDate(requestDTO.getOpeningDate())
-                .shopName(requestDTO.getShopName())
-                .publicInfo(true)   // 프론트에서 동의 받아야 2단계로 진행할 거라서 고정
-                .socialType(joinType)
-                .businessCertificateUrl(savedName)  // 파일명만 저장
-                .status(SellerRequestStatus.PENDING)
-                .build();
+        PendingSellerRequest pendingSeller;
+
+        if (tempSellerId == null) {
+            // 신규 생성
+            pendingSeller = PendingSellerRequest.builder()
+                    .userId(requestDTO.getUserId())
+                    .uname(requestDTO.getUname())
+                    .password(encodedPassword)
+                    .phoneNumber(requestDTO.getPhoneNumber())
+                    .businessNumber(requestDTO.getBusinessNumber())
+                    .bossName(requestDTO.getBossName())
+                    .openingDate(requestDTO.getOpeningDate())
+                    .shopName(requestDTO.getShopName())
+                    .publicInfo(true)
+                    .socialType(joinType)
+                    .businessCertificateUrl(savedName)
+                    .status(SellerRequestStatus.PENDING)
+                    .build();
+
+        } else {
+            // 1단계 데이터 남아있을 때 업데이트
+            pendingSeller = pendingSellerRequestRepository.findById(tempSellerId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_TEMP_SELLER_ID));
+
+            pendingSeller.changeUserId(requestDTO.getUserId());
+            pendingSeller.changeUname(requestDTO.getUname());
+            pendingSeller.changePassword(encodedPassword);
+            pendingSeller.changeBusinessNumber(requestDTO.getBusinessNumber());
+            pendingSeller.changeBossName(requestDTO.getBossName());
+            pendingSeller.changeOpeningDate(requestDTO.getOpeningDate());
+            pendingSeller.changeShopName(requestDTO.getShopName());
+            pendingSeller.changeBusinessCertificateUrl(savedName);
+        }
 
         pendingSellerRequestRepository.save(pendingSeller);
 
@@ -245,6 +270,39 @@ public class SellerServiceImpl implements SellerService{
                 .message("탈퇴와 매장 삭제가 완료되었습니다.")
                 .build();
     }
+
+
+    private Long checkPendingSellerProgress(String phoneNumber) {
+
+        Optional<PendingSellerRequest> opt =
+                pendingSellerRequestRepository.findByPhoneNumber(phoneNumber);
+
+        if (opt.isEmpty()) return null; // 신규 진행
+
+        PendingSellerRequest temp = opt.get();
+
+        // Step2 완료인지 확인
+        boolean step2Complete =
+                temp.getAddress() != null && temp.getMainProductDescription() != null;
+
+        // 폰 번호도 db에 있고 2단계 정보도 있는 경우 중복.
+        if (step2Complete) {
+            throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
+        }
+
+        LocalDateTime expiresAt = temp.getRegDate().plusHours(6);
+
+        // 1단계 완료 후 6시간 지나고 2단계 정보도 없으면 db랑 파일 삭제
+        if (expiresAt.isBefore(LocalDateTime.now())) {
+            customImageUtils.deleteImageFile(temp.getBusinessCertificateUrl(), pendingSellerDir);
+            pendingSellerRequestRepository.delete(temp);
+            return null;
+        }
+
+        customImageUtils.deleteImageFile(temp.getBusinessCertificateUrl(), pendingSellerDir);
+        return temp.getTempSellerId();
+    }
+
 
 
 }

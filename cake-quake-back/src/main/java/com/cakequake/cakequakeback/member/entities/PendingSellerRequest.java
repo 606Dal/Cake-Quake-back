@@ -86,6 +86,14 @@ public class PendingSellerRequest extends BaseEntity {
 
 
     // 수정용
+    public void changeUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void changeUname(String uname) {
+        this.uname = uname;
+    }
+
     public void changePassword(String password) {
         this.password = password;
     }
@@ -94,8 +102,16 @@ public class PendingSellerRequest extends BaseEntity {
         this.phoneNumber = phoneNumber;
     }
 
+    public void changeBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
+    }
+
     public void changeBossName(String bossName) {
         this.bossName = bossName;
+    }
+
+    public void changeOpeningDate(String openingDate) {
+        this.openingDate = openingDate;
     }
 
     public void changeShopName(String shopname) {

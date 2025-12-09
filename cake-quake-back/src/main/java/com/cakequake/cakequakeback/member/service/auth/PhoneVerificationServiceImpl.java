@@ -61,10 +61,8 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
         // 타입별 예외 분리
         switch (type) {
             case SIGNUP, CHANGE -> {
-                // user 테이블과 승인대기 테이블에서 전화번호 중복 검사
-                if (pendingSellerRequestRepository.existsByPhoneNumber(rawPhoneNumber)) {
-                    throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
-                }else if (memberRepository.existsByPhoneNumber(rawPhoneNumber)) {
+                // user 테이블에서 전화번호 중복 검사
+                if (memberRepository.existsByPhoneNumber(rawPhoneNumber)) {
                     throw new BusinessException(ErrorCode.ALREADY_EXIST_PHONE);
                 }
 

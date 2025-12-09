@@ -87,6 +87,29 @@ public class CustomImageUtils {
         return fileName; // 이동된 파일명 그대로 반환
     }
 
+    public void deleteImageFile(String fileName, String dir) {
+
+        if (fileName == null || fileName.isBlank()) {
+            return;
+        }
+
+        File file = new File(dir, fileName);
+
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+
+            File thumbnail = new File(dir, "s_" + fileName);
+            if (thumbnail.exists()) {
+                thumbnail.delete();
+            }
+
+        } catch (Exception e) {
+            log.warn("파일 삭제 실패: {}", fileName, e);
+        }
+    }
+
     private void createThumbnail(File source, File target) {
         try {
             Thumbnails.of(source)

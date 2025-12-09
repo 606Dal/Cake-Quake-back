@@ -10,6 +10,7 @@ import com.cakequake.cakequakeback.member.entities.Member;
 import com.cakequake.cakequakeback.member.entities.SocialType;
 import com.cakequake.cakequakeback.member.entities.VerificationType;
 import com.cakequake.cakequakeback.member.repo.MemberRepository;
+import com.cakequake.cakequakeback.member.repo.PendingSellerRequestRepository;
 import com.cakequake.cakequakeback.member.repo.PhoneVerificationRepository;
 import com.cakequake.cakequakeback.shop.repo.ShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,13 @@ public class MemberValidator {
 
     private final MemberRepository memberRepository;
     private final ShopRepository shopRepository;
+    private final PendingSellerRequestRepository pendingSellerRequestRepository;
 
-    public MemberValidator(MemberRepository memberRepository, ShopRepository shopRepository) {
+    public MemberValidator(MemberRepository memberRepository, ShopRepository shopRepository, PendingSellerRequestRepository pendingSellerRequestRepository) {
         this.memberRepository = memberRepository;
         this.shopRepository = shopRepository;
-    }
+		this.pendingSellerRequestRepository = pendingSellerRequestRepository;
+	}
 
     public void validateSignupRequest(BuyerSignupRequestDTO dto) {
 
@@ -118,7 +121,7 @@ public class MemberValidator {
         }
 
         // ID 중복 검사
-        if (memberRepository.existsByUserId(userId)) {
+        if (memberRepository.existsByUserId(userId) || pendingSellerRequestRepository.existsByUserId(userId)) {
             throw new BusinessException(ErrorCode.ALREADY_EXIST_USER_ID); // 701
         }
 
