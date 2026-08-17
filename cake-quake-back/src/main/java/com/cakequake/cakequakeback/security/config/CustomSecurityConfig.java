@@ -101,7 +101,8 @@ public class CustomSecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "https://cake-quake.vercel.app",
-                "https://frontend.api-cakequake.shop"
+                "https://frontend.api-cakequake.shop",
+                "https://frontend.cakequake-api.shop"
                 )
         );
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"));
