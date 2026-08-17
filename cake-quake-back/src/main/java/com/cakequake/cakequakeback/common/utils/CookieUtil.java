@@ -70,7 +70,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)     // HTTPS
                 .path("/")
-                .domain(".api-cakequake.shop")
+                .domain(".cakequake-api.shop")
                 .sameSite("None")
                 .maxAge(0)  // 삭제
                 .build();
